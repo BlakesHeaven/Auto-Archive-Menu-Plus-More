@@ -1,0 +1,29 @@
+{
+	"plugin-data":
+	{
+		"name": "Auto-Archive-Menu-Plus-More",
+		"description": "Think of a conveyor-belt... </br>Published content moves through Upcoming menu section, into Current menu section and finally to the Archive menu section; all based on published date. All sections are configurable, including the duration in each section.<br>Oh yes; there's a few more features as well, like hidden pages..."
+	},
+	"upcoming-label": "Label for upcoming content",
+	"display-upcoming-section": "Display upcoming section",
+	"show-upcoming-children": "Show upcoming children",
+	"current-label": "Label for current content",	
+	"current-after-weeks": "Current after how many weeks",
+	"show-current-children": "Show current children",
+	"archive-label": "Label for archived content",
+	"display-archive-section": "Display archive section",
+	"archive-after-weeks": "Archive after how many weeks",
+	"amount-of-items": "Amount of items",
+	"show-archive-children": "Show archive children",
+	"enabled": "Enable Section",
+	"disabled": "Disable Section",
+	"hidden-category": "Hidden Category",
+	"home-link": "Home link",
+	"show-the-home-link-on-the-sidebar": "Show the home link on the sidebar.",
+	"nothing-label": "What to do about nothing",
+	"show-section-label": "Show Section Label",
+	"hide-section-label": "Hide Section Label",
+	"fillin-text-label": "Fill-in if nothing (see above)",
+	"display-static-pages-section": "Display Static Pages section",
+	"static-label": "Label for static pages menu"
+}
