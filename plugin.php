@@ -6,23 +6,30 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 	{
 		// Fields and default values for the database of this plugin
 		$this->dbFields = array(
-			'upcomingLabel'=>'Upcoming',
+			'durationType'=>'month',
+			'whatToDoAboutNothing'=>false,
+			'fillInText'=>'',
+
 			'displayUpcomingSection'=>true,
+			'upcomingLabel'=>'Upcoming Section',
 			'showUpcomingChildren'=>true,
-			'currentLabel'=>'Current',
-			'currentAfterWeeks'=>4,
+
+			'currentLabel'=>'Current Section',
+			'currentAfter'=>1,
 			'showCurrentChildren'=>true,
-			'archiveLabel'=>'Archive',
+
 			'displayArchiveSection'=>true,
-			'archiveAfterWeeks'=>10,
+			'archiveLabel'=>'Archive Section',
+			'archiveAfter'=>4,
 			'amountOfItems'=>5,
 			'showArchiveChildren'=>true,
+
 			'hiddenCategory'=>'Hidden',
-			'homeLink'=>true,
-			'whatToDoAboutNothing'=>true,
-			'fillInText'=>'',
+
 			'displayStaticPagesSection'=>true,
-			'staticLabel'=>'Static Pages'		
+			'staticLabel'=>'Static Pages',
+			'homeLink'=>true
+
 		);
 	}
 
@@ -32,158 +39,173 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		global $Language;
 		$html = '';
 		/********************************************************
-			Options for UPCOMING section
-		********************************************************/ 
-		$html .= '<h3>"Upcoming" section settings</h3>';
-
-		// Enabled/Disabled
+			Global Options
+		********************************************************/
+		$html .= '<h3>'.$Language->get('global-options-title').'</h3> ';
+		// Define the duration type
 		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Display Upcoming Section').'</label>';
-		$html .= '<select name="displayUpcomingSection">';
-		$html .= '<option value="true" '.($this->getValue('displayUpcomingSection')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayUpcomingSection')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
+		$html .= '<label>'.$Language->get('duration-type-label').'</label>';
+		$html .= '<select name="durationType">';
+		$html .= '<option value="week" '.($this->getValue('durationType')==='week'?'selected':'').'>'.$Language->get('week').'</option>';
+		$html .= '<option value="month" '.($this->getValue('durationType')==='month'?'selected':'').'>'.$Language->get('month').'</option>';
+		$html .= '<option value="year" '.($this->getValue('durationType')==='year'?'selected':'').'>'.$Language->get('year').'</option>';
 		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the upcoming section on the sidebar').'</span>';
+		$html .= '<span class="tip">'.$Language->get('duration-type-tip').'</span>';
 		$html .= '</div>';
-		// Label
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Upcoming Label').'</label>';
-		$html .= '<input id="jsupcominglabel" name="upcomingLabel" type="text" value="'.$this->getValue('upcomingLabel').'">';
-		$html .= '<span class="tip">'.$Language->get('This title is used for the published content that is coming up next.').'</span>';
-		$html .= '<span class="tip">'.$Language->get('Content becomes visible from the published date if the status is published.').'</span>';
-		$html .= '</div>';
-		// Show CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Show children').'</label>';
-		$html .= '<select name="showUpcomingChildren">';
-		$html .= '<option value="true" '.($this->getValue('showUpcomingChildren')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showUpcomingChildren')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the Children section on the sidebar').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';
-		
-		/********************************************************
-			Options for CURRENT section
-		********************************************************/ 		
-		//Label
-		$html .= '<h3>"Current" section settings (Always displayed)</h3> ';
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Current Label').'</label>';
-		$html .= '<input id="jscurrentlabel" name="currentLabel" type="text" value="'.$this->getValue('currentLabel').'">';
-		$html .= '<span class="tip">'.$Language->get('This title is use for the published content that relevant to now.').'</span>';
-		$html .= '</div>';
-		//Current after X time, e.g. weeks
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('current after weeks').'</label>';
-		$html .= '<input id="jscurentafterweeks" name="currentAfterWeeks" type="number" value="'.$this->getValue('currentAfterWeeks').'">';
-		$html .= '<span class="tip">'.$Language->get('Content becomes current after X weeks from the published date.').'</span>';
-		$html .= '</div>';
-		// Show CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Show children').'</label>';
-		$html .= '<select name="showCurrentChildren">';
-		$html .= '<option value="true" '.($this->getValue('showCurrentChildren')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showCurrentChildren')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the Children section on the sidebar').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';
-		/********************************************************
-			Options for ARCHIEVE section
-		********************************************************/ 
-		// Enabled/Disabled
-		$html .= '<h3>"Archive" section settings</h3> ';	
-		// Enable/Disable Archive section
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Display Archive Section').'</label>';
-		$html .= '<select name="displayArchiveSection">';
-		$html .= '<option value="true" '.($this->getValue('displayArchiveSection')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayArchiveSection')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the archive section on the sidebar').'</span>';
-		$html .= '</div>';
-		// Label for Archive section
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Archive Label').'</label>';
-		$html .= '<input id="jsarchivelabel" name="archiveLabel" type="text" value="'.$this->getValue('archiveLabel').'">';
-		$html .= '<span class="tip">'.$Language->get('This title is use for the published content that has moved into the past and not current.').'</span>';
-		$html .= '</div>';
-		//Archive after X time, e.g. weeks
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Archive after how many weeks').'</label>';
-		$html .= '<input id="jsarchiveafterweeks" name="archiveAfterWeeks" type="number" value="'.$this->getValue('archiveAfterWeeks').'">';
-		$html .= '<span class="tip">'.$Language->get('Content becomes archived after X weeks from the published date.').'</span>';
-		$html .= '</div>';
-		// Display X number of Archived items
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Amount of items').'</label>';
-		$html .= '<input id="jsamountOfItems" name="amountOfItems" type="number" value="'.$this->getValue('amountOfItems').'">';
-		$html .= '<span class="tip">'.$Language->get('The number of items appearing under the Archive list to prevent uncontrolled growth.').'</span>';	
-		$html .= '</div>';
-		// Show CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Show children').'</label>';
-		$html .= '<select name="showArchiveChildren">';
-		$html .= '<option value="true" '.($this->getValue('showArchiveChildren')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showArchiveChildren')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the Children section on the sidebar').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';
-		/********************************************************
-			More options for other functionality
-		********************************************************/ 		
-		$html .= '<h3>"Plus Some" more options</h3> ';		
 		// What to do about nothing - i.e. when no content is due to appear
 		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Nothing Label').'</label>';
+		$html .= '<label>'.$Language->get('nothing-label').'</label>';
 		$html .= '<select name="whatToDoAboutNothing">';
-		$html .= '<option value="true" '.($this->getValue('whatToDoAboutNothing')===true?'selected':'').'>'.$Language->get('Show Section Label').'</option>';
-		$html .= '<option value="false" '.($this->getValue('whatToDoAboutNothing')===false?'selected':'').'>'.$Language->get('Hide Section Label').'</option>';
+		$html .= '<option value="true" '.($this->getValue('whatToDoAboutNothing')===true?'selected':'').'>'.$Language->get('show-section-label').'</option>';
+		$html .= '<option value="false" '.($this->getValue('whatToDoAboutNothing')===false?'selected':'').'>'.$Language->get('hide-section-label').'</option>';
 		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Handles whether to show/hide section label if empty. See below to display alternative text under label').'</span>';
+		$html .= '<span class="tip">'.$Language->get('what-about-nothing-tip').'</span>';
 		$html .= '</div>';
 		// If Section Label is shown and there is no content, display some fill-in text instead.
 		$html .= '<div>';
 		$html .= '<label>'.$Language->get('fillin-text-label').'</label>';
 		$html .= '<input id="jsfillInText" name="fillInText" type="text" value="'.$this->getValue('fillInText').'">';
-		$html .= '<span class="tip">'.$Language->get('If selected to display fill-in text, show this text').'</span>';
-		$html .= '</div>';	
+		$html .= '<span class="tip">'.$Language->get('fillin-text-tip').'</span>';
+		$html .= '</div>';
+
+		$html .= '<hr>';
+		/********************************************************
+			Options for UPCOMING section
+		********************************************************/
+		$html .= '<h3>'.$Language->get('upcoming-section-title').'</h3>';
+
+		// Enabled/Disabled
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('display-upcoming-section').'</label>';
+		$html .= '<select name="displayUpcomingSection">';
+		$html .= '<option value="true" '.($this->getValue('displayUpcomingSection')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('displayUpcomingSection')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
+		$html .= '</select>';
+		$html .= '<span class="tip">'.$Language->get('display-upcoming-section-tip').'</span>';
+		$html .= '</div>';
+		// Label
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('upcoming-label').'</label>';
+		$html .= '<input id="jsupcominglabel" name="upcomingLabel" type="text" value="'.$this->getValue('upcomingLabel').'">';
+		$html .= '<span class="tip">'.$Language->get('upcoming-label-tip').'</span>';
+		$html .= '</div>';
+		// Show CHILDREN or not
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('show-upcoming-children').'</label>';
+		$html .= '<select name="showUpcomingChildren">';
+		$html .= '<option value="true" '.($this->getValue('showUpcomingChildren')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('showUpcomingChildren')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
+		$html .= '</select>';
+		$html .= '<span class="tip">'.$Language->get('show-upcoming-children-tip').'</span>';
+		$html .= '</div>';
+		$html .= '<hr>';
+
+		/********************************************************
+			Options for CURRENT section
+		********************************************************/
+		//Label
+		$html .= '<h3>'.$Language->get('current-section-title').'</h3>';
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('current-label').'</label>';
+		$html .= '<input id="jscurrentlabel" name="currentLabel" type="text" value="'.$this->getValue('currentLabel').'">';
+		$html .= '<span class="tip">'.$Language->get('current-label-tip').'</span>';
+		$html .= '</div>';
+		//Current after X time, e.g. weeks
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('current-after').'</label>';
+		$html .= '<input id="jscurentafter" name="currentAfter" type="number" value="'.$this->getValue('currentAfter').'">';
+		$html .= '<span class="tip">'.$Language->get('current-after-tip').'</span>';
+		$html .= '</div>';
+		// Show CHILDREN or not
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('show-current-children').'</label>';
+		$html .= '<select name="showCurrentChildren">';
+		$html .= '<option value="true" '.($this->getValue('showCurrentChildren')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('showCurrentChildren')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
+		$html .= '</select>';
+		$html .= '<span class="tip">'.$Language->get('show-current-children-tip').'</span>';
+		$html .= '</div>';
+		$html .= '<hr>';
+		/********************************************************
+			Options for ARCHIEVE section
+		********************************************************/
+		// Section label
+		$html .= '<h3>'.$Language->get('archive-section-title').'</h3>';
+		// Enable/Disable Archive section
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('display-archive-section').'</label>';
+		$html .= '<select name="displayArchiveSection">';
+		$html .= '<option value="true" '.($this->getValue('displayArchiveSection')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('displayArchiveSection')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
+		$html .= '</select>';
+		$html .= '<span class="tip">'.$Language->get('display-archive-section-tip').'</span>';
+		$html .= '</div>';
+		// Label for Archive section
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('archive-label').'</label>';
+		$html .= '<input id="jsarchivelabel" name="archiveLabel" type="text" value="'.$this->getValue('archiveLabel').'">';
+		$html .= '<span class="tip">'.$Language->get('archive-label-tip').'</span>';
+		$html .= '</div>';
+		//Archive after X time, e.g. weeks
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('archive-after').'</label>';
+		$html .= '<input id="jsarchiveAfter" name="archiveAfter" type="number" value="'.$this->getValue('archiveAfter').'">';
+		$html .= '<span class="tip">'.$Language->get('archive-after-tip').'</span>';
+		$html .= '</div>';
+		// Display X number of Archived items
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('amount-of-items').'</label>';
+		$html .= '<input id="jsamountOfItems" name="amountOfItems" type="number" value="'.$this->getValue('amountOfItems').'">';
+		$html .= '<span class="tip">'.$Language->get('amount-of-items-tip').'</span>';
+		$html .= '</div>';
+		// Show CHILDREN or not
+		$html .= '<div>';
+		$html .= '<label>'.$Language->get('show-archive-children').'</label>';
+		$html .= '<select name="showArchiveChildren">';
+		$html .= '<option value="true" '.($this->getValue('showArchiveChildren')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('showArchiveChildren')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
+		$html .= '</select>';
+		$html .= '<span class="tip">'.$Language->get('show-archive-children-tip').'</span>';
+		$html .= '</div>';
+		$html .= '<hr>';
+		/********************************************************
+			More options for other functionality
+		********************************************************/
+		// Section label
+		$html .= '<h3>'.$Language->get('plus-some-section-title').'</h3>';
 		// Added to hide pages from menu for a particular category
 		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Hidden Category').'</label>';
+		$html .= '<label>'.$Language->get('hidden-category').'</label>';
 		$html .= '<input id="jshiddenCategory" name="hiddenCategory" type="text" value="'.$this->getValue('hiddenCategory').'">';
-		$html .= '<span class="tip">'.$Language->get('Any content assigned this category will be hidden from the menu. NB: The category must already exist.').'</span>';
-		$html .= '</div>';	
-		
+		$html .= '<span class="tip">'.$Language->get('hidden-category-tip').'</span>';
+		$html .= '</div>';
 		$html .= '<hr>';
 		// Enable/Disable STATIC Pages section
 		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Display STATIC PAGES Section').'</label>';
+		$html .= '<label>'.$Language->get('display-static-pages-section').'</label>';
 		$html .= '<select name="displayStaticPagesSection">';
-		$html .= '<option value="true" '.($this->getValue('displayStaticPagesSection')===true?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayStaticPagesSection')===false?'selected':'').'>'.$Language->get('Disabled').'</option>';
+		$html .= '<option value="true" '.($this->getValue('displayStaticPagesSection')===true?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.($this->getValue('displayStaticPagesSection')===false?'selected':'').'>'.$Language->get('disable-section').'</option>';
 		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Enable to display the STATIC PAGES section on the sidebar').'</span>';
+		$html .= '<span class="tip">'.$Language->get('display-static-pages-section-tip').'</span>';
 		$html .= '</div>';
 		// Label for Static Pages Section
 		$html .= '<div>';
 		$html .= '<label>'.$Language->get('Static Label').'</label>';
 		$html .= '<input id="jsstaticLabel" name="staticLabel" type="text" value="'.$this->getValue('staticLabel').'">';
-		$html .= '<span class="tip">'.$Language->get('The static page menu is almost always used in the sidebar of the site').'</span>';
+		$html .= '<span class="tip">'.$Language->get('static-label-tip').'</span>';
 		$html .= '</div>';
 		// Display 'Home Page' in Static Pages section
 		$html .= '<div>';
-		$html .= '<label>'.$Language->get('Home Link').'</label>';
+		$html .= '<label>'.$Language->get('home-link').'</label>';
 		$html .= '<select name="homeLink">';
-		$html .= '<option value="true" '.($this->getValue('homeLink')?'selected':'').'>'.$Language->get('Enabled').'</option>';
-		$html .= '<option value="false" '.(!$this->getValue('homeLink')?'selected':'').'>'.$Language->get('Disabled').'</option>';
+		$html .= '<option value="true" '.($this->getValue('homeLink')?'selected':'').'>'.$Language->get('enable-section').'</option>';
+		$html .= '<option value="false" '.(!$this->getValue('homeLink')?'selected':'').'>'.$Language->get('disable-section').'</option>';
 		$html .= '</select>';
-		$html .= '<span class="tip">'.$Language->get('Show the home link on the sidebar - appears at the top of this plug-in in the static pages section').'</span>';
+		$html .= '<span class="tip">'.$Language->get('home-link-tip').'</span>';
 		$html .= '</div>';
 
-		$html .= '<hr>';				
+		$html .= '<hr>';
 
 		return $html;
 	}
@@ -199,31 +221,33 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 		/*******************************************************************************
 		Lets fill some variables... in order of above.
-		*******************************************************************************/		
+		*******************************************************************************/
 		// 'upcomingLabel'=>'Upcoming',
-		$upcomingLabel = $this->getValue('upcomingLabel');		
+		$upcomingLabel = $this->getValue('upcomingLabel');
 		// do we display upcoming items?
 		$displayUpcomingSection = $this->getValue('displayUpcomingSection');
 			// 'showUpcomingChildren'=>true,
-		$showUpcomingChildren = $this->getValue('showUpcomingChildren');		
+		$showUpcomingChildren = $this->getValue('showUpcomingChildren');
 			// 'currentLabel'=>'Current',
 		$currentLabel = $this->getValue('currentLabel');
-		// How may weeks pass from the published date before being current - should be less than archive values below.
-		IF ($displayUpcomingSection) {$currentAfterWeeks = $this->getValue('currentAfterWeeks');}
-		ELSE {$currentAfterWeeks = 0;}
-		$currentEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$currentAfterWeeks week");
+		// what is the selected durationType
+		$durationType = $this->getValue('durationType');
+		// How much time passes from the published date before being current - should be less than archive values below.
+		IF ($displayUpcomingSection) {$currentAfter = $this->getValue('currentAfter');}
+		ELSE {$currentAfter = 0;}
+		$currentEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$currentAfter $durationType");
 			// 'showCurrentChildren'=>true,
 		$showCurrentChildren = $this->getValue('showCurrentChildren');
 			// 'archiveLabel'=>'Archive',
 		$archiveLabel = $this->getValue('archiveLabel');
 			// 'displayArchiveSection'=>true,
 		$displayArchiveSection = $this->getValue('displayArchiveSection');
-		// How may weeks pass from the published date before archiving - should be greater than current values above.
-		$archiveAfterWeeks = $this->getValue('archiveAfterWeeks');
-		$archiveEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$archiveAfterWeeks week");
+		// How may much time pass from the published date before archiving - should be greater than current values above.
+		$archiveAfter = $this->getValue('archiveAfter');
+		$archiveEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$archiveAfter $durationType");
 		// Number of Archive Parent pages to show and a counter
 		$amountOfItems = $this->getValue('amountOfItems');
-		$countOfItems = 0;				
+		$countOfItems = 0;
 		// 'showArchiveChildren'=>true
 		$showArchiveChildren = $this->getValue('showArchiveChildren');
 		// Hidden Category
@@ -233,7 +257,6 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		// Static Page Label
 		$staticLabel = $this->getValue('staticLabel');
 
-		
 		// Page number the first one
 		$pageNumber = 1;
 
@@ -243,12 +266,12 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		// Get the list of pages
 		$pages = $dbPages->getList($pageNumber, $amountOfItems, $onlyPublished, true);
 		$staticPages = $dbPages->getStaticDB(true);
-		
+
 		// Declare EXIST variables for each section to FALSE, upcoming, current & archive.
 		$upcomingPagesExist = false;
 		$currentPagesExist = false;
 		$archivePagesExist = false;
-		
+
 		// For each page, check if applicable for UPCOMING section, set variable to TRUE and break out loop
 		foreach($pagesByParent[PARENT] as $Parent) {
 					if ($Parent->category()!= $hiddenCategory && 	strtotime( $Parent->date() ) > $currentEpoch) {
@@ -258,7 +281,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 		// For each page, check if applicable for CURRENT section, set variable to TRUE and break out loop
 		foreach($pagesByParent[PARENT] as $Parent) {
-					if ($Parent->category()!= $hiddenCategory &&	strtotime( $Parent->date() ) > $archiveEpoch && 
+					if ($Parent->category()!= $hiddenCategory &&	strtotime( $Parent->date() ) > $archiveEpoch &&
 																	strtotime( $Parent->date() ) <= $currentEpoch ) {
 						$currentPagesExist = true;
 						break;
@@ -271,9 +294,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						break;
 					}
 		}
-		
+
 		// HTML for sidebar
-		$html  = '';	
+		$html  = '';
 		/******************************************************************************
 		SECTION FOR SHOWING STATIC PAGES as taken from the Static Pages plug-in.
 		*******************************************************************************/
@@ -311,7 +334,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '</div>';
 			$html .= '</div>';
 		}
-		
+
 		/*******************************************************************************
 		SECTION FOR SHOWING UPCOMING TOPICS - PUBILSHED, BUT NOT YET CURRENT
 		*******************************************************************************/
@@ -369,7 +392,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 							if ($showUpcomingChildren) {
 								if(!empty($pagesByParent[$Parent->key()])) {
-									$html .= '<ul class="child">';			
+									$html .= '<ul class="child">';
 
 									// Get keys of pages
 									foreach($pagesByParent[$Parent->key() ] as $child) {
@@ -389,7 +412,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						}
 					}
 				}
-			}		
+			}
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
@@ -454,7 +477,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 							if ($showCurrentChildren) {
 								if(!empty($pagesByParent[$Parent->key()])) {
-									$html .= '<ul class="child">';			
+									$html .= '<ul class="child">';
 
 									// Get keys of pages
 									foreach($pagesByParent[$Parent->key() ] as $child) {
@@ -474,8 +497,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						}
 					}
 				}
-			}		
-			
+			}
+
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
@@ -495,7 +518,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 					if ($Parent->category()!= $hiddenCategory) {
 						//if ($countOfItems === $amountOfItems) { break; }
-					
+
 						if (strtotime( $Parent->date() ) <= $archiveEpoch ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
@@ -545,7 +568,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 							if ($showArchiveChildren) {
 								if(!empty($pagesByParent[$Parent->key()])) {
-									$html .= '<ul class="child">';			
+									$html .= '<ul class="child">';
 
 									// Get keys of pages
 									foreach($pagesByParent[$Parent->key() ] as $child) {
@@ -567,7 +590,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 					}
 				}
 			}
-			
+
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
