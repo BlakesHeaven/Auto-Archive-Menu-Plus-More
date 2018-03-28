@@ -1,5 +1,7 @@
 # Bludit Plugin: "Auto-Archive-Menu-Plus-More"
 
+## Issue: GitHub added the word "-Master" the the end of the folder in the download; the extracted folder must simply be "Auto-Archive-Menu-Plus-More", NOT "Auto-Archive-Menu-Plus-More-Master" - Modify folder name manually until resolved.
+
 Think of a conveyor-belt...
 
 ... Published content moves through three different sections automatically based on the published DATE:
