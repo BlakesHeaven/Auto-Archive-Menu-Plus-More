@@ -1,0 +1,8 @@
+This version was developed against Bludit version 2.2.1
+It has not need tested against other 2.2.x versions, but is beleived to be compatible.
+
+Known issues:
+It does not work in Bludit version 2.3.4, and most likely other 2.3.x versions - a new plugin version is being looked at for this later version and will be in a seperate folder.
+
+Unknown issues:
+I don't know what next weeks lottery numbers are.
