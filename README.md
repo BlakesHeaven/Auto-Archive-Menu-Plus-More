@@ -1,13 +1,13 @@
 # Bludit Plugin: "Auto-Archive-Menu-Plus-More"
 
-##Version control and installation.
+## Version control and installation.
 I will not be testing this plugin against all releases of Bludit. As and when I upgrade my Bludit website and find it to be incompatible with this plugin I will endeavour to fix the issue.
 
 For version control, I will start a new folder that will be a complete plugin and independent of other versions.
 
 After downloading and extracting the zip file, look in the relevant folder applicable for you Bludit version and upload the 'Auto-Archive-Menu-Plus-More' folder into the 'bl-plugins' folder on your website. Then activate and configure as needed.
 
-##Description
+## Description
 Think of a conveyor-belt...
 
 ... Published content moves through three different sections automatically based on the published DATE:
