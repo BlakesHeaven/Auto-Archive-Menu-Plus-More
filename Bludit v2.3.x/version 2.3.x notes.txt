@@ -1,8 +1,0 @@
-This version was developed against Bludit version 2.3.4
-For earlier versions of Bludit, see the relevent folders.
-
-Known issues:
-It does not work yet - I am still developing it and trying to find what has changed in order to fix the issues.
-
-Unknown issues:
-Mmm, I don't know yet and probably never will.
