@@ -273,23 +273,28 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$archivePagesExist = false;
 
 		// For each page, check if applicable for UPCOMING section, set variable to TRUE and break out loop
-		foreach($pagesByParent[PARENT] as $Parent) {
-					if ($Parent->category()!= $hiddenCategory && 	strtotime( $Parent->date() ) > $currentEpoch) {
+		$pagesByParent = buildParentPages(); 			// added 2.3.4
+		
+		//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+		foreach($pagesByParent as $parent) {			// 2.3.4 added
+					if ($parent->category()!= $hiddenCategory && 	strtotime( $parent->date() ) > $currentEpoch) {
 						$upcomingPagesExist = true;
 						break;
 					}
 		}
 		// For each page, check if applicable for CURRENT section, set variable to TRUE and break out loop
-		foreach($pagesByParent[PARENT] as $Parent) {
-					if ($Parent->category()!= $hiddenCategory &&	strtotime( $Parent->date() ) > $archiveEpoch &&
-																	strtotime( $Parent->date() ) <= $currentEpoch ) {
+		//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+		foreach($pagesByParent as $parent) {			// 2.3.4 added
+					if ($parent->category()!= $hiddenCategory &&	strtotime( $parent->date() ) > $archiveEpoch &&
+																	strtotime( $parent->date() ) <= $currentEpoch ) {
 						$currentPagesExist = true;
 						break;
 					}
 		}
 		// For each page, check if applicable for ARCHIVE section, set variable to TRUE and break out loop
-		foreach($pagesByParent[PARENT] as $Parent) {
-					if ($Parent->category()!= $hiddenCategory && 	strtotime( $Parent->date() ) <= $archiveEpoch ) {
+		//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+		foreach($pagesByParent as $parent) {			// 2.3.4 added
+					if ($parent->category()!= $hiddenCategory && 	strtotime( $parent->date() ) <= $archiveEpoch ) {
 						$archivePagesExist = true;
 						break;
 					}
@@ -345,23 +350,30 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '		<ul>';
 
 			if(ORDER_BY==='position') {
-				foreach($pagesByParent[PARENT] as $Parent) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
 
-					if ($Parent->category()!= $hiddenCategory) {
-						if (strtotime( $Parent->date() ) > $currentEpoch ) {
+					if ($parent->category()!= $hiddenCategory) {
+						if (strtotime( $parent->date() ) > $currentEpoch ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
-							$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-							$html .= 			$Parent->title();
+							$html .= '		<a class="child" href="'.$parent->permalink().'">';
+							$html .= 			$parent->title();
 							$html .= '		</a>';
 							$html .= '	</h3>';
 
 							if ($showUpcomingChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key()] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
+
+										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) > $currentEpoch ) {
 											$html .= '<li class="child">';
 											$html .= '	<a class="child" href="'.$child->permalink().'">';
@@ -379,25 +391,30 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				}
 			}
 			else {
-				foreach($pagesByParent[PARENT] as $Parent) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
 
-					if ($Parent->category()!= $hiddenCategory) {
-						if ( strtotime( $Parent->date() ) > $currentEpoch  ) {
+					if ($parent->category()!= $hiddenCategory) {
+						if ( strtotime( $parent->date() ) > $currentEpoch  ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
-							$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-							$html .= 			$Parent->title();
+							$html .= '		<a class="child" href="'.$parent->permalink().'">';
+							$html .= 			$parent->title();
 							$html .= '		</a>';
 							$html .= '	</h3>';
 
 							if ($showUpcomingChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key() ] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
 
-									// Create the page object from the page key if valid for this section.
+										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) >= $currentEpoch ) {
 											$html .= '<li>';
 											$html .= '	<a class="child" href="'.$child->permalink().'">';
@@ -428,23 +445,27 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '		<ul>';
 
 			if(ORDER_BY==='position') {
-				foreach($pagesByParent[PARENT] as $Parent) {
-
-					if ($Parent->category()!= $hiddenCategory) {
-						if (strtotime( $Parent->date() ) > $archiveEpoch && strtotime( $Parent->date() ) <= $currentEpoch ) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
+					if ($parent->category()!= $hiddenCategory) {
+						if (strtotime( $parent->date() ) > $archiveEpoch && strtotime( $parent->date() ) <= $currentEpoch ) {
 							$html .= '<li class="parent">';
 								$html .= '	<h3>';
-								$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-								$html .= 			$Parent->title();
+								$html .= '		<a class="child" href="'.$parent->permalink().'">';
+								$html .= 			$parent->title();
 								$html .= '		</a>';
 								$html .= '	</h3>';
 
 							if ($showCurrentChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key()] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
 
 										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) > $archiveEpoch && strtotime( $child->date() ) <= $currentEpoch ) {
@@ -464,23 +485,27 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				}
 			}
 			else {
-				foreach($pagesByParent[PARENT] as $Parent) {
-
-					if ($Parent->category()!= $hiddenCategory) {
-						if (strtotime( $Parent->date() ) > $archiveEpoch && strtotime( $Parent->date() ) <= $currentEpoch ) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
+					if ($parent->category()!= $hiddenCategory) {
+						if (strtotime( $parent->date() ) > $archiveEpoch && strtotime( $parent->date() ) <= $currentEpoch ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
-							$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-							$html .= 			$Parent->title();
+							$html .= '		<a class="child" href="'.$parent->permalink().'">';
+							$html .= 			$parent->title();
 							$html .= '		</a>';
 							$html .= '	</h3>';
 
 							if ($showCurrentChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key() ] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
 
 										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) > $archiveEpoch && strtotime( $child->date() ) <= $currentEpoch ) {
@@ -514,25 +539,30 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 
 			if(ORDER_BY==='position') {
-				foreach($pagesByParent[PARENT] as $Parent) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
 
-					if ($Parent->category()!= $hiddenCategory) {
+					if ($parent->category()!= $hiddenCategory) {
 						//if ($countOfItems === $amountOfItems) { break; }
 
-						if (strtotime( $Parent->date() ) <= $archiveEpoch ) {
+						if (strtotime( $parent->date() ) <= $archiveEpoch ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
-							$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-							$html .= 			$Parent->title();
+							$html .= '		<a class="child" href="'.$parent->permalink().'">';
+							$html .= 			$parent->title();
 							$html .= '		</a>';
 							$html .= '	</h3>';
 
 							if ($showArchiveChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key()] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
 
 										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) <= $archiveEpoch ) {
@@ -553,25 +583,30 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				}
 			}
 			else {
-				foreach($pagesByParent[PARENT] as $Parent) {
+				//foreach($pagesByParent[PARENT] as $Parent) { 	// 2.2.1 removed
+				foreach($pagesByParent as $parent) {			// 2.3.4 added
 
-					if ($Parent->category()!= $hiddenCategory) {
+					if ($parent->category()!= $hiddenCategory) {
 						//if ($countOfItems === $amountOfItems) { break; }
 
-						if (strtotime( $Parent->date() ) <= $archiveEpoch ) {
+						if (strtotime( $parent->date() ) <= $archiveEpoch ) {
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';
-							$html .= '		<a class="child" href="'.$Parent->permalink().'">';
-							$html .= 			$Parent->title();
+							$html .= '		<a class="child" href="'.$parent->permalink().'">';
+							$html .= 			$parent->title();
 							$html .= '		</a>';
 							$html .= '	</h3>';
 
 							if ($showArchiveChildren) {
-								if(!empty($pagesByParent[$Parent->key()])) {
+								//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
+								if ($parent->hasChildren()) {						// 2.3.4 added
+									$pagesByChildren = $parent->children();			// 2.3.4 added
+
 									$html .= '<ul class="child">';
 
 									// Get keys of pages
-									foreach($pagesByParent[$Parent->key() ] as $child) {
+									//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+									foreach ($pagesByChildren as $child) {						// 2.3.4 added
 
 										// Create the page object from the page key if valid for this section.
 										if (strtotime( $child->date() ) <= $archiveEpoch ) {
