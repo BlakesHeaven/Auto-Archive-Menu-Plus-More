@@ -1,7 +1,8 @@
 # Bludit Plugin: "Auto-Archive-Menu-Plus-More"
 
 ## Version control and installation.
-I will not be testing this plugin against all releases of Bludit. As and when I upgrade my Bludit website and find it to be incompatible with this plugin I will endeavour to fix the issue.
+I will not be testing this plugin against all releases of Bludit.
+As and when I upgrade my Bludit website and find it to be incompatible with this plugin I will endeavor to fix the issue.
 
 For version control, I will start a new folder that will be a complete plugin and independent of other versions.
 
@@ -32,6 +33,7 @@ Oh yes; there are a few more features as well...
     <li>Hide pages with a named Category.</li>
     <li>A built in "Static Menu" - derived from the standard Bludit "Static Menu" plug-in, but honoring the hidden pages category.</li>
     <li>Enable/Disable Home page withing Static Pages</li>
+	<li>Special menu Section for Admin/Editors when logged in. - added for plugin ver 2.3.2</li>
 </ul>
 
 Built initially to auto-archive a programme of events for a concert club after a number of weeks had elapsed but became a little more than that.
