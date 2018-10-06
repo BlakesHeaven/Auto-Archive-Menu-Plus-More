@@ -3,14 +3,15 @@ This version was developed against Bludit version 3.0.0
 For earlier versions of Bludit, see the relevent folders.
 
 Known issues:
-Lots of things :-(
+	The "Admin Stuff" section should be restricted to logged in users with Admin/Editor roles, but since Bludit 3 does not give out user roles any more, it is not seemingly possible to identify if it should be displayed.
+	Instead of taking it off entirely I have left the section there so it may be used or not as desired, but visible to all visitors.
 
 Unknown issues:
-Mmm, I don't know yet and probably never will.
+	Mmm, I don't know yet and probably never will.
 
-Changes for plugin:
+CHANGE HISTORY TO PLUGIN:
 
-changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 02/09/2018
+changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 06/10/2018
 	amountOfItems	now	numberOfItems
 	$Language	now	$L		- personally I'd prefer $Language, but keeping it in-sync.
 	$Url		now	$url
@@ -21,11 +22,14 @@ changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 02/09/2018
 	$pagesByChildren now	$children
 
 
-foreach ($staticPages as $pageKey) {	now	foreach ($staticPages as $page) {
+	foreach ($staticPages as $pageKey) {	now	foreach ($staticPages as $page) {
 
 	Added checks for empty Lables - if (!empty($staticLabel)) {
 	added $staticPages = buildStaticPages();
-	
+
+	Fixed the "Order content by" date to actually order by date, was previously only by position.
+
+	Removed "Admin Stuff" restriction to only show to Admin/Editors	because Bludit 3 can't identify loggedin user role.
 
 
 Changes for plugin version 2.3.2 (aka Added Admin Section)	- 06/06/2018
@@ -34,6 +38,7 @@ Changes for plugin version 2.3.2 (aka Added Admin Section)	- 06/06/2018
 	NB: It's only a menu, pages are still accessible if the URL is know.
 	Aimed at normal Published pages so that Parent/Child relationship can be adopted.
 	Driven from a category of your choice. 
+
 
 Changes for plugin version 2.3.1 (aka Fixed for Buldit 2.3)	- 06/05/2018
 	Fixes to make compatible with Bludit Version 2.3.4
