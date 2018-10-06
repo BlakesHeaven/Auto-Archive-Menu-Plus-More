@@ -1,0 +1,54 @@
+This version was developed against Bludit version 3.0.0
+
+For earlier versions of Bludit, see the relevent folders.
+
+Known issues:
+Lots of things :-(
+
+Unknown issues:
+Mmm, I don't know yet and probably never will.
+
+Changes for plugin:
+
+changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 02/09/2018
+	amountOfItems	now	numberOfItems
+	$Language	now	$L		- personally I'd prefer $Language, but keeping it in-sync.
+	$Url		now	$url
+	$Site		now	$site
+	$dbPages	now	$pages
+	$Login		now	$login
+	$pagesByParent	now	$parents
+	$pagesByChildren now	$children
+
+
+foreach ($staticPages as $pageKey) {	now	foreach ($staticPages as $page) {
+
+	Added checks for empty Lables - if (!empty($staticLabel)) {
+	added $staticPages = buildStaticPages();
+	
+
+
+Changes for plugin version 2.3.2 (aka Added Admin Section)	- 06/06/2018
+	Added a new menu section so that if an Admin or Editor is logged in an extra 
+	menu shows. Designed for Admin documentation to be added and hided from the public.
+	NB: It's only a menu, pages are still accessible if the URL is know.
+	Aimed at normal Published pages so that Parent/Child relationship can be adopted.
+	Driven from a category of your choice. 
+
+Changes for plugin version 2.3.1 (aka Fixed for Buldit 2.3)	- 06/05/2018
+	Fixes to make compatible with Bludit Version 2.3.4
+
+	The following changes were make in several places to plugin.php:
+		Set all instances of "$Parent" to "$parent"; ie lower case "p".
+
+	Also,
+		$pagesByParent = buildParentPages(); 			// 2.3.4 added
+		//foreach($pagesByParent[PARENT] as $Parent) { 			// 2.2.1 removed
+		foreach($pagesByParent as $parent) {				// 2.3.4 added
+
+		//if(!empty($pagesByParent[$Parent->key()])) { 			// 2.2.1 removed
+		if ($parent->hasChildren()) {				// 2.3.4 added
+		$pagesByChildren = $parent->children();			// 2.3.4 added
+
+		//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
+		foreach ($pagesByChildren as $child) {			// 2.3.4 added

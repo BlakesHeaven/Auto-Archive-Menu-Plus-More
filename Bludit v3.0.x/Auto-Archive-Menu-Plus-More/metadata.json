@@ -1,0 +1,10 @@
+{
+	"author": "David Blake",
+	"email": "",
+	"website": "",
+	"version": "3.0.0",
+	"releaseDate": "TBA",
+	"license": "MIT",
+	"compatible": "3.0",
+	"notes": "Developed and tested against 3.0.0 beta-2. Added Admin Stuff side menu control"
+}
