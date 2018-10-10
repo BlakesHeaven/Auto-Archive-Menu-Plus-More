@@ -21,7 +21,6 @@ changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 06/10/2018
 	$pagesByParent	now	$parents
 	$pagesByChildren now	$children
 
-
 	foreach ($staticPages as $pageKey) {	now	foreach ($staticPages as $page) {
 
 	Added checks for empty Lables - if (!empty($staticLabel)) {
@@ -47,13 +46,13 @@ Changes for plugin version 2.3.1 (aka Fixed for Buldit 2.3)	- 06/05/2018
 		Set all instances of "$Parent" to "$parent"; ie lower case "p".
 
 	Also,
-		$pagesByParent = buildParentPages(); 			// 2.3.4 added
-		//foreach($pagesByParent[PARENT] as $Parent) { 			// 2.2.1 removed
-		foreach($pagesByParent as $parent) {				// 2.3.4 added
+		$pagesByParent = buildParentPages();
+		//foreach($pagesByParent[PARENT] as $Parent) {
+		foreach($pagesByParent as $parent) {
 
-		//if(!empty($pagesByParent[$Parent->key()])) { 			// 2.2.1 removed
-		if ($parent->hasChildren()) {				// 2.3.4 added
-		$pagesByChildren = $parent->children();			// 2.3.4 added
+		//if(!empty($pagesByParent[$Parent->key()])) {
+		if ($parent->hasChildren()) {
+		$pagesByChildren = $parent->children();
 
-		//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
-		foreach ($pagesByChildren as $child) {			// 2.3.4 added
+		//foreach($pagesByParent[$Parent->key()] as $child) {
+		foreach ($pagesByChildren as $child) {

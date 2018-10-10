@@ -3,25 +3,25 @@ This version was developed against Bludit version 2.3.4
 For earlier versions of Bludit, see the relevent folders.
 
 Known issues:
-None at the moment - thankfully.
+    Does not work with bludit 3.x and above
 
 Unknown issues:
-Mmm, I don't know yet and probably never will.
+    Mmm, I don't know yet and probably never will.
 
 Changes:
- Fixes to make compatible with Bludit Version 2.3.4
+    Fixes to make compatible with Bludit Version 2.3.4
 
 The following changes were make in several places to plugin.php:
-   Set all instances of "$Parent" to "$parent"; ie lower case "p".
+    Set all instances of "$Parent" to "$parent"; ie lower case "p".
 
 Also,
   $pagesByParent = buildParentPages(); 			// 2.3.4 added
-//foreach($pagesByParent[PARENT] as $Parent) { 			// 2.2.1 removed
-  foreach($pagesByParent as $parent) {				// 2.3.4 added
+//foreach($pagesByParent[PARENT] as $Parent) { 		// 2.2.1 removed
+  foreach($pagesByParent as $parent) {			// 2.3.4 added
 
-//if(!empty($pagesByParent[$Parent->key()])) { 			// 2.2.1 removed
+//if(!empty($pagesByParent[$Parent->key()])) { 		// 2.2.1 removed
   if ($parent->hasChildren()) {				// 2.3.4 added
-  $pagesByChildren = $parent->children();			// 2.3.4 added
+  $pagesByChildren = $parent->children();		// 2.3.4 added
 
-//foreach($pagesByParent[$Parent->key()] as $child) {		// 2.2.1 removed
-  foreach ($pagesByChildren as $child) {			// 2.3.4 added
+//foreach($pagesByParent[$Parent->key()] as $child) {	// 2.2.1 removed
+  foreach ($pagesByChildren as $child) {		// 2.3.4 added
