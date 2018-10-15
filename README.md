@@ -33,8 +33,8 @@ Oh yes; there are a few more features as well...
     <li>Hide pages with a named Category.</li>
     <li>A built in "Static Menu" - derived from the standard Bludit "Static Menu" plug-in, but honoring the hidden pages category.</li>
     <li>Enable/Disable Home page withing Static Pages</li>
-	<li>Special menu Section for Admin/Editors when logged in. - added for plugin ver 2.3.2</li>
-    <li>A special section for Admin/Other Stuff (See known issues) driven by Category (honoring the hidden pages category), positional order only. Should restricted to logined in Admin/Editor roles, but bludit 3 does not give out user roles any more...</li>
+    <li>Special menu Section for Admin/Editors when logged in. - added for plugin ver 2.3.2</br>
+	NB: Still there for Bludit 3.x but <b>NOT</b> now restricted to Admit/Editors because bludit 3 does not give out user roles any more... hope to add it back it sometime...</li>
 </ul>
 
 Built initially to auto-archive a programme of events for a concert club after a number of weeks had elapsed but became a little more than that.
