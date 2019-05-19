@@ -1,10 +1,10 @@
 {
 	"author": "David Blake",
 	"email": "",
-	"website": "",
-	"version": "3.0.0",
+	"website": "https://github.com/BlakesHeaven/Auto-Archive-Menu-Plus-More",
+	"version": "3.9.0",
 	"releaseDate": "TBA",
 	"license": "MIT",
-	"compatible": "3.0",
-	"notes": "Developed and tested against 3.0.0 beta-2. Added Admin Stuff side menu control"
+	"compatible": "3.x",
+	"notes": "Developed against v3.7 and tested against 3.9.0. Added properly restricted 'Admin Stuff' section back in to side menu control."
 }

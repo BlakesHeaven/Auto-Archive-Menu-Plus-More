@@ -37,6 +37,24 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		);
 	}
 
+	public function beforeSiteLoad()
+	{
+		$login = new Login();
+
+		if ( $login->isLogged()) {
+			$username = $login->username();
+			$user = new User($username);
+
+			$GLOBALS['userRole'] = $login->Role();
+			$GLOBALS['userDisplayName'] =  $user->nickname() ?: $user->firstname() ?: $username; 
+		}
+		else {
+			$GLOBALS['userRole'] = 'No Role';
+			$GLOBALS['userDisplayName'] = 'No Name';
+		}
+		
+	}
+	
 	// Method called on the settings of the plugin on the admin area
 	public function form()
 	{
@@ -254,68 +272,70 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 	public function siteSidebar()
 	{
 		global $L;
-		global $url;
 		global $site;
 		global $pages;
 		global $parents;
-		global $login;
-		// $login = new Login();					// added 3.0.0
-		// $userRole = $user->role();
+		global $userRole;
 
 		/*******************************************************************************
-		Lets fill some variables... in order of above.
+		Lets fill some variables...
 		*******************************************************************************/
 
-		// do we display upcoming items?
+		// Do we display Upcoming section?
 		$displayUpcomingSection = $this->getValue('displayUpcomingSection');
 		IF ($displayUpcomingSection) {
 			$upcomingLabel = $this->getValue('upcomingLabel');			
+			// Do we show Upcoming Children?
+			$showUpcomingChildren = $this->getValue('showUpcomingChildren');
 		}
 
-		// 'showUpcomingChildren'=>true,
-		$showUpcomingChildren = $this->getValue('showUpcomingChildren');
-		// 'currentLabel'=>'Current',
+		// We always show current section so get info...
 		$currentLabel = $this->getValue('currentLabel');
-		// what is the selected durationType
+		// What is the selected durationType - Day, Week, Month.
 		$durationType = $this->getValue('durationType');
 		// How much time passes from the published date before being current - should be less than archive values below.
 		IF ($displayUpcomingSection) {$currentAfter = $this->getValue('currentAfter');}
 		ELSE {$currentAfter = 0;}
 		$currentEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$currentAfter $durationType");
-		// 'showCurrentChildren'=>true,
+		// Do we show Current Children?
 		$showCurrentChildren = $this->getValue('showCurrentChildren');
-		// 'archiveLabel'=>'Archive',
-		$archiveLabel = $this->getValue('archiveLabel');
-		// 'displayArchiveSection'=>true,
+
+		// Do we show Archive section?
 		$displayArchiveSection = $this->getValue('displayArchiveSection');
-		// How may much time pass from the published date before archiving - should be greater than current values above.
-		$archiveAfter = $this->getValue('archiveAfter');
-		$archiveEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$archiveAfter $durationType");
-		// Number of Archive Parent pages to show and a counter
-		$numberOfItems = $this->getValue('numberOfItems');
-		$countOfItems = 0;
-		// 'showArchiveChildren'=>true
-		$showArchiveChildren = $this->getValue('showArchiveChildren');
+		IF ($displayArchiveSection) {
+			// Get archive Label/
+			$archiveLabel = $this->getValue('archiveLabel');	
+			// How much time passes from the published date before archiving - should be greater than current values above.
+			$archiveAfter = $this->getValue('archiveAfter');
+			$archiveEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$archiveAfter $durationType");
+			// Number of Archive Parent pages to show and a counter/
+			$numberOfItems = $this->getValue('numberOfItems');
+			$countOfItems = 0;
+			// Do we show Archive Children?
+			$showArchiveChildren = $this->getValue('showArchiveChildren');		
+		}
+
+		// Do we show Admin section?
+		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
+		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin")) ) {
+			global $userDisplayName;
+			// Admin Category
+			$adminCategory = $this->getValue('adminCategory');
+			// Admin Stuff Menu Label
+			$adminStuffLabel = $this->getValue('adminStuffLabel');
+			// Do we show Admin Stuff Children?
+			$showAdminStuffChildren = $this->getValue('showAdminStuffChildren');			
+		}
+
 		// Hidden Category
 		$hiddenCategory = $this->getValue('hiddenCategory');
-		// 'displayAdminStuffSection'=>true,
-		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
-		// Admin Category
-		$adminCategory = $this->getValue('adminCategory');
-		// Admin Stuff Menu Label
-		$adminStuffLabel = $this->getValue('adminStuffLabel');
-		// 'showAdminStuffChildren'=>true
-		$showAdminStuffChildren = $this->getValue('showAdminStuffChildren');
 		// Display Static Pages Section
 		$displayStaticPagesSection = $this->getValue('displayStaticPagesSection');
 		// Static Page Label
 		$staticLabel = $this->getValue('staticLabel');
-
 		// Page number the first one
 		$pageNumber = 1;
-
 		// Misc - Other variables
-		$loginUserName = "";
 		$onlyPublished = true; 
 		
 		// Get the list of pages
@@ -329,18 +349,19 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$archivePagesExist = false;
 		
 		// For each page, check IF applicable for ADMIN STUFF section, set variable to TRUE and break out of loop
-		IF ( $displayAdminStuffSection)
-			//&& in_array($Login->role(), array("editor","admin",true) )) 
-			{
+		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin")) ) {
 			FOREACH($parents as $parent) {
 				IF ($parent->category() === $adminCategory) {
 					$adminPagesExist = true;
-					$loginUserName = ""; //$Login->username();
 					break;
 				}
 			}			
 		}
-		IF (ORDER_BY=='position') {
+		/***************************************************************************************
+		ORDERED EITHER BY POSITION OR PUBLIDED DATE - DETERMINE IF PAGES EXIST FOR EACH SECTION
+		****************************************************************************************/
+		IF (ORDER_BY=='position') 
+		{
 
 			// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
 			FOREACH($parents as $parent) {
@@ -371,9 +392,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				}
 			}
 		}
-		else {
-
-			// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
+		else 
+		{	// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
 			FOREACH($publishedPagesByDate as $pageKey) {
 				try {
 						$page = new Page($pageKey);
@@ -384,7 +404,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							break;
 						}
 				}
-				catch (Exception $e) { // Continue
+				catch (Exception $e) { // continue...
 				}
 			}
 			// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
@@ -399,7 +419,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							break;
 						}
 				}
-				catch (Exception $e) { // Continue
+				catch (Exception $e) { // continue...
 				}
 			}
 			// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
@@ -413,21 +433,19 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							break;
 						}
 				}
-				catch (Exception $e) { // Continue
+				catch (Exception $e) { // continue...
 				}
 			}
 		}
 
-		// HTML for sidebar
+		// Build HTML for the sidebar.
 		$html  = '';
-		// if (checkRole('admin') ) {
-			// $html .= 'User is Admin or editor';
-		// }
 		
 		/******************************************************************************
 		SECTION FOR SHOWING STATIC PAGES as taken from the Static Pages plug-in.
 		*******************************************************************************/
-		IF ($displayStaticPagesSection) {
+		IF ($displayStaticPagesSection) 
+		{
 
 			$staticPages = buildStaticPages();
 
@@ -463,7 +481,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		/*******************************************************************************
 		SECTION FOR PAGES PUBILSHED WITH CATEGORY FOR THE ADMIN
 		*******************************************************************************/
-		IF ( $adminPagesExist && $displayAdminStuffSection ) {
+		IF ( ($adminPagesExist) && ($displayAdminStuffSection) && (in_array($userRole, array("editor","admin"))) )
+		{
 			$html .= '<div class="plugin plugin-pages">';
 
 			IF (!empty($adminStuffLabel)) {
@@ -473,8 +492,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '	<div class="plugin-content">';
 			$html .= '		<ul>';
 
-			IF (!$loginUserName == "") {
-				$html .= 'Welcome '.$loginUserName;
+			IF (!$userDisplayName == "") {
+				$html .= 'Welcome '.$userDisplayName;
 			}
 
 			FOREACH ($parents as $parent) {
@@ -517,7 +536,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		/*******************************************************************************
 		SECTION FOR SHOWING UPCOMING TOPICS - PUBILSHED, BUT NOT YET CURRENT
 		*******************************************************************************/
-		IF ( $upcomingPagesExist && $displayUpcomingSection ) {
+		IF ( $upcomingPagesExist && $displayUpcomingSection ) 
+		{
 			$html .= '<div class="plugin plugin-pages">';
 
 			IF (!empty($upcomingLabel)) {
@@ -603,8 +623,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							$html .= '</li>';
 						}
 					}
-					catch (Exception $e) {
-							// Continue
+					catch (Exception $e) { // continue...
 					}
 				}
 			}
@@ -618,7 +637,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		/*******************************************************************************
 		SECTION FOR SHOWING CURRENT TOPICS - PUBILSHED, BUT NOT YET ARCHIEVED
 		*******************************************************************************/
-		IF ( $currentPagesExist ) {
+		IF ( $currentPagesExist ) 
+		{
 			$html .= '<div class="plugin plugin-pages">';
 
 			IF (!empty($currentLabel)) {
@@ -722,7 +742,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		/*******************************************************************************
 		SECTION FOR SHOWING ARCHIEVED TOPICS - PUBILSHED AND OLD ENOUGH TO BE ARCHIEVED.
 		*******************************************************************************/
-		IF ( $archivePagesExist && $displayArchiveSection ) {
+		IF ( $archivePagesExist && $displayArchiveSection ) 
+		{
 			$html .= '<div class="plugin plugin-pages">';
 
 			IF (!empty($archiveLabel)) {
