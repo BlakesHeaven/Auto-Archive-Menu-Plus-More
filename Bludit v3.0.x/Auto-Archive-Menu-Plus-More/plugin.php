@@ -7,8 +7,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		// Fields and default values for the database of this plugin
 		$this->dbFields = array(
 			'durationType'=>'month',
-			'whatToDoAboutNothing'=>false,
-			'fillInText'=>'',
+			'alwaysShowUpcomingSectionLabel'=>false,
+			'upcomingFillinText'=>'',
 
 			'displayStaticPagesSection'=>true,
 			'staticLabel'=>'Static Pages',
@@ -52,219 +52,275 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$GLOBALS['userRole'] = 'No Role';
 			$GLOBALS['userDisplayName'] = 'No Name';
 		}
-		
+	}
+
+	public function adminHead()
+	{
+		// Include plugin's CSS files
+		$html = $this->includeCSS('style.css');
+
+		return $html;
 	}
 	
 	// Method called on the settings of the plugin on the admin area
 	public function form()
 	{
+	
 		global $L;
-
-		$html = '';
+		$items = getCategories();
+		$currentAdminCategory = $this->getValue('adminCategory');
+		$currentHiddenCategory = $this->getValue('hiddenCategory');
+		
+		$html = '<div class="AutoArchiveMenuPlusMore-plugin">';
 		/********************************************************
 			Global Options
 		********************************************************/
 		$html .= '<h3>'.$L->get('global-options-title').'</h3> ';
-		// Define the duration type
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('duration-type-label').'</label>';
-		$html .= '<select name="durationType">';
-		$html .= '<option value="week" '.($this->getValue('durationType')==='week'?'selected':'').'>'.$L->get('week').'</option>';
-		$html .= '<option value="month" '.($this->getValue('durationType')==='month'?'selected':'').'>'.$L->get('month').'</option>';
-		$html .= '<option value="year" '.($this->getValue('durationType')==='year'?'selected':'').'>'.$L->get('year').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('duration-type-tip').'</span>';
-		$html .= '</div>';
-		// What to do about nothing - i.e. when no content is due to appear
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('nothing-label').'</label>';
-		$html .= '<select name="whatToDoAboutNothing">';
-		$html .= '<option value="true" '.($this->getValue('whatToDoAboutNothing')===true?'selected':'').'>'.$L->get('show-section-label').'</option>';
-		$html .= '<option value="false" '.($this->getValue('whatToDoAboutNothing')===false?'selected':'').'>'.$L->get('hide-section-label').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('what-about-nothing-tip').'</span>';
-		$html .= '</div>';
-		// IF Section Label is shown and there is no content, display some fill-in text instead.
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('fillin-text-label').'</label>';
-		$html .= '<input id="jsfillInText" name="fillInText" type="text" value="'.$this->getValue('fillInText').'">';
-		$html .= '<span class="tip">'.$L->get('fillin-text-tip').'</span>';
-		$html .= '</div>';
+
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Define the duration type
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('duration-type-label').'</label>';
+				$html .= '<select name="durationType">';
+				$html .= '<option value="week" '.($this->getValue('durationType')==='week'?'selected':'').'>'.$L->get('week').'</option>';
+				$html .= '<option value="month" '.($this->getValue('durationType')==='month'?'selected':'').'>'.$L->get('month').'</option>';
+				$html .= '<option value="year" '.($this->getValue('durationType')==='year'?'selected':'').'>'.$L->get('year').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('duration-type-tip').'</span>';
+			$html .= '</div>';
+			// Hide pages from menu for a particular category
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('hidden-category').'</label>';
+				$html .= '<select name="hiddenCategory">';
+					foreach ($items as $category) {
+						$categoryName = $category->name();
+						IF ($categoryName != $currentAdminCategory) {
+							$html .= '<option value="'.$categoryName.'" '.($currentHiddenCategory===$categoryName?'selected':'').'>'.$categoryName.'</option>';
+						}
+					}
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('hidden-category-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
 
 		$html .= '<hr>';
 		/********************************************************
 			Options for STATIC Pages section
 		********************************************************/		
-		$html .= '<h3>'.$L->get('static-pages-options-title').'</h3> ';		
-		// Enable/Disable STATIC Pages section
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('display-static-pages-section').'</label>';
-		$html .= '<select name="displayStaticPagesSection">';
-		$html .= '<option value="true" '.($this->getValue('displayStaticPagesSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayStaticPagesSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('display-static-pages-section-tip').'</span>';
-		$html .= '</div>';
+		$html .= '<h3>'.$L->get('static-pages-options-title').'</h3> ';
+		
 		// Menu Label for Static Pages Section
 		$html .= '<div>';
-		$html .= '<label>'.$L->get('Static Label').'</label>';
-		$html .= '<input id="jsstaticLabel" name="staticLabel" type="text" value="'.$this->getValue('staticLabel').'">';
-		$html .= '<span class="tip">'.$L->get('static-label-tip').'</span>';
+			$html .= '<label class="labelStyle">'.$L->get('Static Label').'</label>';
+			$html .= '<input id="jsstaticLabel" name="staticLabel" type="text" value="'.$this->getValue('staticLabel').'">';
+			$html .= '<span class="tip">'.$L->get('static-label-tip').'</span>';
 		$html .= '</div>';
-		// Display 'Home Page' in Static Pages section
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('home-link').'</label>';
-		$html .= '<select name="homeLink">';
-		$html .= '<option value="true" '.($this->getValue('homeLink')?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.(!$this->getValue('homeLink')?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('home-link-tip').'</span>';
-		$html .= '</div>';
+		
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Enable/Disable STATIC Pages section
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('display-static-pages-section').'</label>';
+				$html .= '<select name="displayStaticPagesSection">';
+				$html .= '<option value="true" '.($this->getValue('displayStaticPagesSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('displayStaticPagesSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('display-static-pages-section-tip').'</span>';
+			$html .= '</div>';
+			// Display 'Home Page' in Static Pages section
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('home-link').'</label>';
+				$html .= '<select name="homeLink">';
+				$html .= '<option value="true" '.($this->getValue('homeLink')?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.(!$this->getValue('homeLink')?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('home-link-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+
 		$html .= '<hr>';
 		/********************************************************
 			Options for UPCOMING section
 		********************************************************/
 		$html .= '<h3>'.$L->get('upcoming-section-title').'</h3>';
-
-		// Enabled/Disabled
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('display-upcoming-section').'</label>';
-		$html .= '<select name="displayUpcomingSection">';
-		$html .= '<option value="true" '.($this->getValue('displayUpcomingSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayUpcomingSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('display-upcoming-section-tip').'</span>';
-		$html .= '</div>';
 		// Menu Label for UPCOMING Section
 		$html .= '<div>';
-		$html .= '<label>'.$L->get('upcoming-label').'</label>';
-		$html .= '<input id="jsupcominglabel" name="upcomingLabel" type="text" value="'.$this->getValue('upcomingLabel').'">';
-		$html .= '<span class="tip">'.$L->get('upcoming-label-tip').'</span>';
+			$html .= '<label class="labelStyle">'.$L->get('upcoming-label').'</label>';
+			$html .= '<input id="jsupcominglabel" name="upcomingLabel" type="text" value="'.$this->getValue('upcomingLabel').'">';
+			$html .= '<span class="tip">'.$L->get('upcoming-label-tip').'</span>';
 		$html .= '</div>';
-		// Show UPCOMING CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('show-upcoming-children').'</label>';
-		$html .= '<select name="showUpcomingChildren">';
-		$html .= '<option value="true" '.($this->getValue('showUpcomingChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showUpcomingChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('show-upcoming-children-tip').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';
+		
 
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Enabled/Disabled
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('display-upcoming-section').'</label>';
+				$html .= '<select name="displayUpcomingSection">';
+				$html .= '<option value="true" '.($this->getValue('displayUpcomingSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('displayUpcomingSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('display-upcoming-section-tip').'</span>';
+			$html .= '</div>';
+			// Show UPCOMING CHILDREN or not
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('show-upcoming-children').'</label>';
+				$html .= '<select name="showUpcomingChildren">';
+				$html .= '<option value="true" '.($this->getValue('showUpcomingChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('showUpcomingChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('show-upcoming-children-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// What to do about nothing in UPCOMING section - i.e. when no content is due to appear
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('upcoming-nothing-label').'</label>';
+				$html .= '<select name="alwaysShowUpcomingSectionLabel">';
+				$html .= '<option value="true" '.($this->getValue('alwaysShowUpcomingSectionLabel')===true?'selected':'').'>'.$L->get('show-upcoming-section-label').'</option>';
+				$html .= '<option value="false" '.($this->getValue('alwaysShowUpcomingSectionLabel')===false?'selected':'').'>'.$L->get('hide-upcoming-section-label').'</option>';
+				$html .= '</select>';
+			$html .= '<span class="tip">'.$L->get('upcoming-nothing-tip').'</span>';
+			$html .= '</div>';
+			// IF Section Label is shown and there is no content, display some fill-in text instead.
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('fillin-text-label').'</label>';
+				$html .= '<input id="jsupcomingFillinText" name="upcomingFillinText" type="text" value="'.$this->getValue('upcomingFillinText').'">';
+				$html .= '<span class="tip">'.$L->get('fillin-text-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+		
+		$html .= '<hr>';		
 		/********************************************************
 			Options for CURRENT section
 		********************************************************/
 		// Menu Label for CURRENT section
 		$html .= '<h3>'.$L->get('current-section-title').'</h3>';
 		$html .= '<div>';
-		$html .= '<label>'.$L->get('current-label').'</label>';
-		$html .= '<input id="jscurrentlabel" name="currentLabel" type="text" value="'.$this->getValue('currentLabel').'">';
-		$html .= '<span class="tip">'.$L->get('current-label-tip').'</span>';
+			$html .= '<label class="labelStyle">'.$L->get('current-label').'</label>';
+			$html .= '<input id="jscurrentlabel" name="currentLabel" type="text" value="'.$this->getValue('currentLabel').'">';
+			$html .= '<span class="tip">'.$L->get('current-label-tip').'</span>';
 		$html .= '</div>';
-		// Current after X time, e.g. weeks
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('current-after').'</label>';
-		$html .= '<input id="jscurentafter" name="currentAfter" type="number" value="'.$this->getValue('currentAfter').'">';
-		$html .= '<span class="tip">'.$L->get('current-after-tip').'</span>';
-		$html .= '</div>';
-		// Show CURRENT CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('show-current-children').'</label>';
-		$html .= '<select name="showCurrentChildren">';
-		$html .= '<option value="true" '.($this->getValue('showCurrentChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showCurrentChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('show-current-children-tip').'</span>';
-		$html .= '</div>';
+
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Current after X time, e.g. weeks
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('current-after').'</label>';
+				$html .= '<input id="jscurentafter" name="currentAfter" type="number" value="'.$this->getValue('currentAfter').'">';
+				$html .= '<span class="tip">'.$L->get('current-after-tip').'</span>';
+			$html .= '</div>';
+			// Show CURRENT CHILDREN or not
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('show-current-children').'</label>';
+				$html .= '<select name="showCurrentChildren">';
+				$html .= '<option value="true" '.($this->getValue('showCurrentChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('showCurrentChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('show-current-children-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+		
 		$html .= '<hr>';
 		/********************************************************
 			Options for ARCHIEVE section
 		********************************************************/
 		// Section label
 		$html .= '<h3>'.$L->get('archive-section-title').'</h3>';
-		// Enable/Disable Archive section
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('display-archive-section').'</label>';
-		$html .= '<select name="displayArchiveSection">';
-		$html .= '<option value="true" '.($this->getValue('displayArchiveSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayArchiveSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('display-archive-section-tip').'</span>';
-		$html .= '</div>';
+
 		// Menu Label for Archive section
 		$html .= '<div>';
-		$html .= '<label>'.$L->get('archive-label').'</label>';
-		$html .= '<input id="jsarchivelabel" name="archiveLabel" type="text" value="'.$this->getValue('archiveLabel').'">';
-		$html .= '<span class="tip">'.$L->get('archive-label-tip').'</span>';
+			$html .= '<label class="labelStyle">'.$L->get('archive-label').'</label>';
+			$html .= '<input id="jsarchivelabel" name="archiveLabel" type="text" value="'.$this->getValue('archiveLabel').'">';
+			$html .= '<span class="tip">'.$L->get('archive-label-tip').'</span>';
 		$html .= '</div>';
-		// Archive after X time, e.g. weeks
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('archive-after').'</label>';
-		$html .= '<input id="jsarchiveAfter" name="archiveAfter" type="number" value="'.$this->getValue('archiveAfter').'">';
-		$html .= '<span class="tip">'.$L->get('archive-after-tip').'</span>';
-		$html .= '</div>';
-		// Display X number of Archived items
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('amount-of-items').'</label>';
-		$html .= '<input id="jsnumberOfItems" name="numberOfItems" type="number" value="'.$this->getValue('numberOfItems').'">';
-		$html .= '<span class="tip">'.$L->get('amount-of-items-tip').'</span>';
-		$html .= '</div>';
-		// Show ARCHIEVE CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('show-archive-children').'</label>';
-		$html .= '<select name="showArchiveChildren">';
-		$html .= '<option value="true" '.($this->getValue('showArchiveChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showArchiveChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('show-archive-children-tip').'</span>';
-		$html .= '</div>';
+		
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Enable/Disable Archive section
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('display-archive-section').'</label>';
+				$html .= '<select name="displayArchiveSection">';
+				$html .= '<option value="true" '.($this->getValue('displayArchiveSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('displayArchiveSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('display-archive-section-tip').'</span>';
+			$html .= '</div>';
+			// Show ARCHIEVE CHILDREN or not
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('show-archive-children').'</label>';
+				$html .= '<select name="showArchiveChildren">';
+				$html .= '<option value="true" '.($this->getValue('showArchiveChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('showArchiveChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('show-archive-children-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Archive after X time, e.g. weeks
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('archive-after').'</label>';
+				$html .= '<input id="jsarchiveAfter" name="archiveAfter" type="number" value="'.$this->getValue('archiveAfter').'">';
+				$html .= '<span class="tip">'.$L->get('archive-after-tip').'</span>';
+			$html .= '</div>';
+			// Display X number of Archived items
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('amount-of-items').'</label>';
+				$html .= '<input id="jsnumberOfItems" name="numberOfItems" type="number" value="'.$this->getValue('numberOfItems').'">';
+				$html .= '<span class="tip">'.$L->get('amount-of-items-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+
 		$html .= '<hr>';
 		/********************************************************
 			More options for other functionality
 		********************************************************/
 		// Section label HEADER
 		$html .= '<h3>'.$L->get('plus-some-section-title').'</h3>';
-		// Hide pages from menu for a particular category
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('hidden-category').'</label>';
-		$html .= '<input id="jshiddenCategory" name="hiddenCategory" type="text" value="'.$this->getValue('hiddenCategory').'">';
-		$html .= '<span class="tip">'.$L->get('hidden-category-tip').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';
-		// Enable/Disable Admin Stuff section
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('display-admin-stuff-section').'</label>';
-		$html .= '<select name="displayAdminStuffSection">';
-		$html .= '<option value="true" '.($this->getValue('displayAdminStuffSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('displayAdminStuffSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('display-admin-stuff-section-tip').'</span>';
-		$html .= '</div>';
-		// Set a particular category to be for Admin Stuff
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('admin-stuff-category').'</label>';
-		$html .= '<input id="jsadminCategory" name="adminCategory" type="text" value="'.$this->getValue('adminCategory').'">';
-		$html .= '<span class="tip">'.$L->get('admin-stuff-category-tip1').'</span>';
-		$html .= '<span class="tip">'.$L->get('admin-stuff-category-tip2').'</span>';
-		$html .= '</div>';
-		// Menu Label for ADMIN STUFF Section
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('admin-stuff-label').'</label>';
-		$html .= '<input id="jsadminStufflabel" name="adminStuffLabel" type="text" value="'.$this->getValue('adminStuffLabel').'">';
-		$html .= '<span class="tip">'.$L->get('admin-stuff-label-tip').'</span>';
-		$html .= '</div>';	
-		// Show Admin Stuff CHILDREN or not
-		$html .= '<div>';
-		$html .= '<label>'.$L->get('show-admin-stuff-children').'</label>';
-		$html .= '<select name="showAdminStuffChildren">';
-		$html .= '<option value="true" '.($this->getValue('showAdminStuffChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
-		$html .= '<option value="false" '.($this->getValue('showAdminStuffChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
-		$html .= '</select>';
-		$html .= '<span class="tip">'.$L->get('show-admin-stuff-children-tip').'</span>';
-		$html .= '</div>';
-		$html .= '<hr>';		
 
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Enable/Disable Admin Stuff section
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('display-admin-stuff-section').'</label>';
+				$html .= '<select name="displayAdminStuffSection">';
+				$html .= '<option value="true" '.($this->getValue('displayAdminStuffSection')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('displayAdminStuffSection')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('display-admin-stuff-section-tip').'</span>';
+			$html .= '</div>';
+			// Show Admin Stuff CHILDREN or not
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('show-admin-stuff-children').'</label>';
+				$html .= '<select name="showAdminStuffChildren">';
+				$html .= '<option value="true" '.($this->getValue('showAdminStuffChildren')===true?'selected':'').'>'.$L->get('enable-section').'</option>';
+				$html .= '<option value="false" '.($this->getValue('showAdminStuffChildren')===false?'selected':'').'>'.$L->get('disable-section').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('show-admin-stuff-children-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Menu Label for ADMIN STUFF Section
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('admin-stuff-label').'</label>';
+				$html .= '<input id="jsadminStufflabel" name="adminStuffLabel" type="text" value="'.$this->getValue('adminStuffLabel').'">';
+				$html .= '<span class="tip">'.$L->get('admin-stuff-label-tip').'</span>';
+			$html .= '</div>';	
+			// Set a particular category to be for Admin Stuff
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('admin-stuff-category').'</label>';
+				$html .= '<select name="adminCategory">';
+					foreach ($items as $category) {
+						$categoryName = $category->name();
+						IF ($categoryName != $currentHiddenCategory) {
+							$html .= '<option value="'.$categoryName.'" '.($currentAdminCategory===$categoryName?'selected':'').'>'.$categoryName.'</option>';
+						}
+					}
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('admin-stuff-category-tip1').'</span>';
+				$html .= '<span class="tip">'.$L->get('admin-stuff-category-tip2').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
+		$html .= '<hr>';		
+		$html .= '</div>';// Close class="AutoArchiveMenuPlusMore-plugin"
 		return $html;
 	}
 
@@ -278,28 +334,38 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		global $userRole;
 
 		/*******************************************************************************
-		Lets fill some variables...
+		Let's fill some variables...
 		*******************************************************************************/
 
+		// Do we show Admin section and is user allowed to see it?
+		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
+		$adminCategory = $this->getValue('adminCategory');
+
+		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin")) ) {
+			global $userDisplayName;
+
+			// Admin Stuff Menu Label
+			$adminStuffLabel = $this->getValue('adminStuffLabel');
+			// Do we show Admin Stuff Children?
+			$showAdminStuffChildren = $this->getValue('showAdminStuffChildren');			
+		}
 		// Do we display Upcoming section?
 		$displayUpcomingSection = $this->getValue('displayUpcomingSection');
 		IF ($displayUpcomingSection) {
 			$upcomingLabel = $this->getValue('upcomingLabel');			
 			// Do we show Upcoming Children?
 			$showUpcomingChildren = $this->getValue('showUpcomingChildren');
+			$upcomingFillinText = $this->getValue('upcomingFillinText');
 		}
-
-		// We always show current section so get info...
+		// We always show current section so just get info...
 		$currentLabel = $this->getValue('currentLabel');
-		// What is the selected durationType - Day, Week, Month.
-		$durationType = $this->getValue('durationType');
+		$durationType = $this->getValue('durationType');		// Day, Week, Month.
 		// How much time passes from the published date before being current - should be less than archive values below.
 		IF ($displayUpcomingSection) {$currentAfter = $this->getValue('currentAfter');}
 		ELSE {$currentAfter = 0;}
 		$currentEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$currentAfter $durationType");
 		// Do we show Current Children?
 		$showCurrentChildren = $this->getValue('showCurrentChildren');
-
 		// Do we show Archive section?
 		$displayArchiveSection = $this->getValue('displayArchiveSection');
 		IF ($displayArchiveSection) {
@@ -314,19 +380,6 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			// Do we show Archive Children?
 			$showArchiveChildren = $this->getValue('showArchiveChildren');		
 		}
-
-		// Do we show Admin section?
-		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
-		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin")) ) {
-			global $userDisplayName;
-			// Admin Category
-			$adminCategory = $this->getValue('adminCategory');
-			// Admin Stuff Menu Label
-			$adminStuffLabel = $this->getValue('adminStuffLabel');
-			// Do we show Admin Stuff Children?
-			$showAdminStuffChildren = $this->getValue('showAdminStuffChildren');			
-		}
-
 		// Hidden Category
 		$hiddenCategory = $this->getValue('hiddenCategory');
 		// Display Static Pages Section
@@ -337,19 +390,17 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$pageNumber = 1;
 		// Misc - Other variables
 		$onlyPublished = true; 
-		
+		$showSectionLabelIfEmpty = $this->getValue('alwaysShowUpcomingSectionLabel');
 		// Get the list of pages
 		$publishedPagesByDate = $pages->getList($pageNumber, -1, $onlyPublished); // -1 gets all pages
 		$parents = buildParentPages();
-		
 		// Declare EXIST variables for each section to FALSE, upcoming, current & archive.
 		$adminPagesExist = false;
 		$upcomingPagesExist = false;
 		$currentPagesExist = false;
 		$archivePagesExist = false;
-		
 		// For each page, check IF applicable for ADMIN STUFF section, set variable to TRUE and break out of loop
-		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin")) ) {
+		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin") ) ) {
 			FOREACH($parents as $parent) {
 				IF ($parent->category() === $adminCategory) {
 					$adminPagesExist = true;
@@ -358,35 +409,34 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			}			
 		}
 		/***************************************************************************************
-		ORDERED EITHER BY POSITION OR PUBLIDED DATE - DETERMINE IF PAGES EXIST FOR EACH SECTION
+		DETERMINE IF PAGES EXIST FOR EACH SECTION - ORDERED EITHER BY POSITION OR PUBLISED DATE
 		****************************************************************************************/
 		IF (ORDER_BY=='position') 
 		{
-
 			// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
 			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) 
-					&& strtotime( $parent->date() ) > $currentEpoch) {
-
+				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
+					&& strtotime( $parent->date() ) > $currentEpoch) 
+				{
 					$upcomingPagesExist = true;
 					break;
 				}
 			}
 			// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
 			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) 
+				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
 					&& strtotime( $parent->date() ) > $archiveEpoch 
-						&& strtotime( $parent->date() ) <= $currentEpoch ) {
-
+						&& strtotime( $parent->date() ) <= $currentEpoch ) 
+				{
 					$currentPagesExist = true;
 					break;
 				}
 			}
 			// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
 			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) 
-					&& strtotime( $parent->date() ) <= $archiveEpoch ) {
-
+				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
+					&& strtotime( $parent->date() ) <= $archiveEpoch ) 
+				{
 					$archivePagesExist = true;
 					break;
 				}
@@ -397,44 +447,41 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			FOREACH($publishedPagesByDate as $pageKey) {
 				try {
 						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory), true ) 
-							&& strtotime( $page->date() ) > $currentEpoch) {
-
+						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
+							&& strtotime( $page->date() ) > $currentEpoch) 
+						{
 							$upcomingPagesExist = true;
 							break;
 						}
 				}
-				catch (Exception $e) { // continue...
-				}
+				catch (Exception $e) { }// continue...
 			}
 			// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
 			FOREACH($publishedPagesByDate as $pageKey) {
 				try {
 						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory), true ) 
+						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
 							&&	strtotime( $page->date() ) > $archiveEpoch 
-								&& strtotime( $page->date() ) <= $currentEpoch ) {
-
+								&& strtotime( $page->date() ) <= $currentEpoch ) 
+						{
 							$currentPagesExist = true;
 							break;
 						}
 				}
-				catch (Exception $e) { // continue...
-				}
+				catch (Exception $e) { } // continue...
 			}
 			// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
 			FOREACH($publishedPagesByDate as $pageKey) {
 				try {
 						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory), true ) 
-							&& strtotime( $page->date() ) <= $archiveEpoch ) {
-
+						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
+							&& strtotime( $page->date() ) <= $archiveEpoch ) 
+						{
 							$archivePagesExist = true;
 							break;
 						}
 				}
-				catch (Exception $e) { // continue...
-				}
+				catch (Exception $e) { } // continue...
 			}
 		}
 
@@ -442,11 +489,10 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$html  = '';
 		
 		/******************************************************************************
-		SECTION FOR SHOWING STATIC PAGES as taken from the Static Pages plug-in.
+		SECTION FOR SHOWING STATIC PAGES UNLESS ADMIN OR HIDDEN. ORDERED BY POSITION ONLY
 		*******************************************************************************/
 		IF ($displayStaticPagesSection) 
 		{
-
 			$staticPages = buildStaticPages();
 
 			$html .= '<div class="plugin plugin-pages">';
@@ -466,22 +512,23 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			}
 
 			FOREACH ($staticPages as $page) {
-				IF ( !in_array($page->category(), array($hiddenCategory,$adminCategory), true ) ) {
+				IF ( !in_array($page->category(), array($hiddenCategory,$adminCategory) ) ) {
 					$html .= '<li>';
 					$html .= '	<a href="' . $page->permalink() . '">' . $page->title() . '</a>';
 					$html .= '</li>';
 				}
 			}
-
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
 		}
 
 		/*******************************************************************************
-		SECTION FOR PAGES PUBILSHED WITH CATEGORY FOR THE ADMIN
+		SECTION FOR PAGES PUBILSHED WITH CATEGORY FOR THE ADMIN BY POSITION ONLY
 		*******************************************************************************/
-		IF ( ($adminPagesExist) && ($displayAdminStuffSection) && (in_array($userRole, array("editor","admin"))) )
+		IF ( ($adminPagesExist) 
+				&& ($displayAdminStuffSection) 
+				&& in_array($userRole, array("editor","admin") ) )
 		{
 			$html .= '<div class="plugin plugin-pages">';
 
@@ -493,7 +540,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '		<ul>';
 
 			IF (!$userDisplayName == "") {
-				$html .= 'Welcome '.$userDisplayName;
+				$html .= $L->get('welcome').' '.$userDisplayName;
 			}
 
 			FOREACH ($parents as $parent) {
@@ -526,22 +573,32 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 					$html .= '</li>';
 				}
 			}
-
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
 		}
-		// Pages ordered by date - NOT for Admin Section by design
 		
 		/*******************************************************************************
 		SECTION FOR SHOWING UPCOMING TOPICS - PUBILSHED, BUT NOT YET CURRENT
 		*******************************************************************************/
-		IF ( $upcomingPagesExist && $displayUpcomingSection ) 
+		IF ( $displayUpcomingSection 
+				&& $upcomingPagesExist OR ($showSectionLabelIfEmpty 
+											&& !empty($upcomingFillinText) )
+			)
 		{
 			$html .= '<div class="plugin plugin-pages">';
 
-			IF (!empty($upcomingLabel)) {
+			IF (!empty($upcomingLabel)  ) {
+
 				$html .= '	<h2 class="plugin-label">' . $upcomingLabel . '</h2>';
+				
+				IF (!$upcomingPagesExist
+						&& $showSectionLabelIfEmpty
+						&& !empty($upcomingFillinText)
+					) 
+				{
+					$html .= $upcomingFillinText;
+				}
 			}
 
 			$html .= '	<div class="plugin-content">';
@@ -552,7 +609,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				FOREACH($parents as $parent) {
 
 					IF ( strtotime( $parent->date() ) > $currentEpoch 
-						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) ) {
+							&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) {
 
 						$html .= '<li class="parent">';
 						$html .= '	<h3>';
@@ -567,23 +624,20 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							FOREACH ($children as $child) {
 
 								IF ( strtotime( $child->date() ) > $currentEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) )  {
+										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
 
 									$html .= '<li class="child">';
 									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
 									$html .= '</li>';
 								}
 							}
-
 							$html .= '</ul>';
 						}
-
 						$html .= '</li>';
 					}
 				}
 			}
-			// Pages order by date
-			else {
+			else {	// Page order by date
 
 				$pageNumber = 1;
 
@@ -593,9 +647,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						$page = new Page($pageKey);
 						
 						IF ( strtotime( $page->date() ) > $currentEpoch
-								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory), true ) )
-									&& !($page->isChild() ) ) {								
-						
+								&& !in_array($page->category(), array($hiddenCategory,$adminCategory) )
+								&& !$page->isChild() ) 
+						{							
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';						
 							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
@@ -611,7 +665,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 								FOREACH ($children as $child) {
 
 									IF ( strtotime( $child->date() ) > $currentEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) ) {
+										&& !in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) {
 
 										$html .= '<li class="child">';
 										$html .= '	<a class="child" href="'.$child->permalink().'">' . $child->title() . '</a>';
@@ -623,11 +677,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							$html .= '</li>';
 						}
 					}
-					catch (Exception $e) { // continue...
-					}
+					catch (Exception $e) { } // continue...
 				}
 			}
-
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
@@ -654,8 +706,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 					IF ( strtotime( $parent->date() ) <= $currentEpoch 
 						&& strtotime( $parent->date() ) > $archiveEpoch 
-							&& !in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) ) {
-
+						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) 
+					{
 						$html .= '<li class="parent">';
 						$html .= '	<h3>';
 						$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
@@ -670,23 +722,20 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 								IF ( strtotime( $child->date() ) <= $currentEpoch 
 									&& strtotime( $child->date() ) > $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) )  {
+										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
 
 									$html .= '<li class="child">';
 									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
 									$html .= '</li>';
 								}
 							}
-
 							$html .= '</ul>';
 						}
-
 						$html .= '</li>';
 					}
 				}
 			}
-			// Pages order by date
-			else {
+			else {	// Pages order by date
 
 				$pageNumber = 1;
 
@@ -697,8 +746,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						
 						IF ( strtotime( $page->date() ) <= $currentEpoch
 							&& strtotime( $page->date() ) > $archiveEpoch 
-								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory), true ) )
-									&& !($page->isChild() ) ) {								
+							&& !(in_array($page->category(), array($hiddenCategory,$adminCategory) ) )
+							&& !($page->isChild() ) ) {								
 						
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';						
@@ -716,7 +765,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 
 									IF ( strtotime( $child->date() ) <= $currentEpoch 
 										&& strtotime( $child->date() ) > $archiveEpoch 
-											&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) ) {
+											&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) ) {
 
 										$html .= '<li class="child">';
 										$html .= '	<a class="child" href="'.$child->permalink().'">' . $child->title() . '</a>';
@@ -728,12 +777,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							$html .= '</li>';
 						}
 					}
-					catch (Exception $e) {
-							// Continue
-					}
+					catch (Exception $e) { }	// Continue
 				}
 			}
-
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
@@ -758,9 +804,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				FOREACH($parents as $parent) {
 
 					IF ( strtotime( $parent->date() ) <= $archiveEpoch 
-						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory), true ) ) {
+						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) {
 
-						//IF ($countOfItems === $numberOfItems) { break; }
+						IF ($countOfItems === $numberOfItems) { break; }
 
 						$html .= '<li class="parent">';
 						$html .= '	<h3>';
@@ -775,7 +821,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							FOREACH ($children as $child) {
 
 								IF ( strtotime( $child->date() ) <= $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) )  {
+										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
 
 									$html .= '<li class="child">';
 									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
@@ -788,11 +834,10 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						//}
 						$html .= '</li>';
 					}
-					//$countOfItems++;
+					$countOfItems++;
 				}
 			}
-			// Pages order by date
-			else {
+			else {	// Pages order by date
 
 				$pageNumber = 1;
 
@@ -802,9 +847,11 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 							$page = new Page($pageKey);
 						
 						IF ( strtotime( $page->date() ) <= $archiveEpoch
-								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory), true ) )
-									&& !($page->isChild() ) ) {								
-						//IF ($countOfItems == $numberOfItems) { break; }
+								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory) ) )
+								&& !($page->isChild() ) ) {								
+
+							IF ($countOfItems == $numberOfItems) { break; }
+							
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';						
 							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
@@ -820,7 +867,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 								FOREACH ($children as $child) {
 
 									IF ( strtotime( $child->date() ) <= $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory), true ) ) ) {
+										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) ) {
 
 										$html .= '<li class="child">';
 										$html .= '	<a class="child" href="'.$child->permalink() . '">' . $child->title() . '</a>';
@@ -829,22 +876,19 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 								}
 								$html .= '</ul>';
 							}
-						//}
 							$html .= '</li>';
 						}
-					//$countOfItems++;
+						$countOfItems++;
 					}
 					catch (Exception $e) {
 							// Continue
 					}
 				}
 			}
-
 			$html .= '		</ul>';
 			$html .= '	</div>';
 			$html .= '</div>';
 		}
-
 		return $html;
 	}
 }

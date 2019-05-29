@@ -3,8 +3,8 @@
 	"email": "",
 	"website": "https://github.com/BlakesHeaven/Auto-Archive-Menu-Plus-More",
 	"version": "3.9.0",
-	"releaseDate": "TBA",
+	"releaseDate": "29/05/2019",
 	"license": "MIT",
 	"compatible": "3.x",
-	"notes": "Developed against v3.7 and tested against 3.9.0. Added properly restricted 'Admin Stuff' section back in to side menu control."
+	"notes": "Developed against Bludit v3.7 and tested against 3.9.x. Added properly restricted 'Admin Stuff' section back in to side menu control."
 }

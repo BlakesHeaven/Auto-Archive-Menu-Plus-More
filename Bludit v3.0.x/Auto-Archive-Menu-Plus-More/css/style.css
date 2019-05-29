@@ -1,0 +1,34 @@
+.AutoArchiveMenuPlusMore-plugin .divTable{
+	display: table;
+	width: 100%;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableRow {
+	display: table-row;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableHeading {
+	background-color: #EEE;
+	display: table-header-group;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableCell, .divTableHead {
+	border: 0px solid #999999;
+	display: table-cell;
+	padding: 0px 10px 0px 0px;
+	width: 50%;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableHeading {
+	background-color: #EEE;
+	display: table-header-group;
+	font-weight: bold;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableFoot {
+	background-color: #EEE;
+	display: table-footer-group;
+	font-weight: bold;
+}
+.AutoArchiveMenuPlusMore-plugin .divTableBody {
+	display: table-row-group;
+}
+
+.AutoArchiveMenuPlusMore-plugin .labelStyle {
+	font-weight: bold;
+}

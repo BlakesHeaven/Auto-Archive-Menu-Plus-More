@@ -1,7 +1,7 @@
 {
 	"plugin-data":
 	{
-		"name": "Auto-Archive-Menu-Plus-More",
+		"name": "Auto Archive Menu Plus More",
 		"description": "Think of a conveyor-belt... </br>Published content moves through Upcoming menu section, into Current menu section and finally to the Archive menu section; all based on published date. All sections are configurable, including the duration in each section.<br>Oh yes; there's a few more features as well, like hidden pages..."
 	},
 	"global-options-title" : "Global Options",
@@ -9,13 +9,13 @@
 	"week": "Week",
 	"month": "Month",
 	"year": "Year",
-	"duration-type-tip":"This value works with the CurrentAfter and ArchiveAfter integer values.",
-	"nothing-label": "What to do about nothing",
-	"show-section-label": "Show Section Label",
-	"hide-section-label": "Hide Section Label",
-	"what-about-nothing-tip": "Handles whether to show/hide section label if empty. See below to display alternative text under label.",
+	"duration-type-tip":"This value works with the CurrentAfter and ArchiveAfter integer values; see below.",
+	"upcoming-nothing-label": "What to do about nothing",
+	"show-upcoming-section-label": "Show Upcoming Section Label When Empty",
+	"hide-upcoming-section-label": "Hide Upcoming Section Label When Empty",
+	"upcoming-nothing-tip": "Handles whether to show/hide section label if empty. See below to display alternative text under label.",
 	"fillin-text-label": "Fill-in text if nothing",
-	"fillin-text-tip": "If above is selected to display, this fill-in text will show.",
+	"fillin-text-tip": "If above is selected to display, this fill-in text will show below the section label.",
 	
 	"static-pages-options-title": "'Static Pages' section settings",
 	"display-static-pages-section": "Display Static Pages section",
@@ -37,7 +37,7 @@
 
 	"current-section-title": "'Current' section settings",
 	"current-label": "Label for current content",
-	"current-label-tip": "This title is use for the published content that relevant to now.",
+	"current-label-tip": "This title is used for the published content relevant to now.",
 	"current-after": "Current after how long",
 	"current-after-tip": "Content becomes current after X {time duration} from the published date.",
 	"show-current-children": "Show current children",
@@ -50,22 +50,23 @@
 	"archive-label-tip": "This title is use for the published content that has moved into the past and not current.",
 	"archive-after": "Archive after how long",
 	"archive-after-tip": "Content becomes archived after X {time duration} from the published date.",
-	"amount-of-items": "Amount of items",
-	"amount-of-items-tip": "The number of items appearing under the Archive list to prevent uncontrolled growth.",
+	"amount-of-items": "Number of items",
+	"amount-of-items-tip": "Restricts the number of items appearing under the Archive list to prevent uncontrolled growth.",
 	"show-archive-children": "Show archive children",
 	"show-archive-children-tip": "Enable to display the Children in the archive section.",
 
 	"plus-some-section-title": "'Plus Some' more options",
 	"hidden-category": "Hidden Category",
-	"hidden-category-tip": "Any content assigned this category will be hidden from the menu. NB: The category must already exist.",
+	"hidden-category-tip": "Any content assigned this category will be hidden from the menu.",
 
 	"display-admin-stuff-section": "Display 'Admin Stuff' section",
 	"display-admin-stuff-section-tip": "Enable to display the Admin Stuff section on the sidebar.",
 	"admin-stuff-category": "Admin Stuff Category",
-	"admin-stuff-category-tip1": "Content assigned this category will only be see by logged in Admin. NB: The category must already exist.",
+	"admin-stuff-category-tip1": "Content assigned this category will only be see by logged in Admin.",
 	"admin-stuff-category-tip2": "All 'Admin stuff' content will be ordered according to it position, not date published, and after the static pages.",
 	"admin-stuff-label": "Label for Admin content",
 	"admin-stuff-label-tip": "Enter the label here that you want displayed above the Admin stuff content.",	
 	"show-admin-stuff-children": "Show Admin Stuff children",
-	"show-admin-stuff-children-tip": "Enable to display the Children in the Admin Stuff section. Make Parent the content page with links to children."
+	"show-admin-stuff-children-tip": "Enable to display the Children in the Admin Stuff section. Make Parent the content page with links to children.",
+	"welcome": "Welcome"
 }
