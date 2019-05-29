@@ -19,13 +19,13 @@ Think of a conveyor-belt...
 
 All sections are configurable:
 <ul>
-    <li>Set if the section is active or not (excluding "Current")</li>
+    <li>Set if the section is active or not (excluding "Current", which is always active)</li>
     <li>Section label names can be changed</li>    
     <li>Set if children should show or not</li>    
     <li>For each independent section, set the duration of time (weeks at the moment) content appears in it</li>
-    <li>What to do about nothing? Automatically shows or hides the section label if no content is found</li>
-    <li>Fill-in text if nothing is found and label is shown <-- in progress.</li>
-    <li>If "Upcoming" menu section is disabled, "Current" menu section automatically starts immediately.</li>
+    <li>What to do about nothing? Automatically shows or hides the upcoming section label if no content is found</br>
+        and Fill-in text iis provided if nothing is found.</li>
+    <li>If "Upcoming" menu section is disabled, pages immediately fall into "Current" menu section.</li>
 </ul>
 
 Oh yes; there are a few more features as well...
@@ -33,8 +33,7 @@ Oh yes; there are a few more features as well...
     <li>Hide pages with a named Category.</li>
     <li>A built in "Static Menu" - derived from the standard Bludit "Static Menu" plug-in, but honoring the hidden pages category.</li>
     <li>Enable/Disable Home page withing Static Pages</li>
-    <li>Special menu Section for Admin/Editors when logged in. - added for plugin ver 2.3.2</br>
-	NB: Still there for Bludit 3.x but <b>NOT</b> now restricted to Admit/Editors because bludit 3 does not give out user roles any more... hope to add it back it sometime...</li>
+    <li>Special menu Section for Admin/Editors when logged in</li>
 </ul>
 
 Built initially to auto-archive a programme of events for a concert club after a number of weeks had elapsed but became a little more than that.
