@@ -50,8 +50,8 @@
 	"archive-label-tip": "This title is use for the published content that has moved into the past and not current.",
 	"archive-after": "Archive after how long",
 	"archive-after-tip": "Content becomes archived after X {time duration} from the published date.",
-	"amount-of-items": "Number of items",
-	"amount-of-items-tip": "Restricts the number of items appearing under the Archive list to prevent uncontrolled growth.",
+	"number-of-items-label": "Number of items",
+	"number-of-items-tip": "Restricts the number of items appearing under the Archive list to prevent uncontrolled growth.",
 	"show-archive-children": "Show archive children",
 	"show-archive-children-tip": "Enable to display the Children in the archive section.",
 

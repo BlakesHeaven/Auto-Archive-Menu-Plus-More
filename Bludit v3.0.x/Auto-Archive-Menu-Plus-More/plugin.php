@@ -70,8 +70,13 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$items = getCategories();
 		$currentAdminCategory = $this->getValue('adminCategory');
 		$currentHiddenCategory = $this->getValue('hiddenCategory');
+
+		$html  = '';
+		$html .= '<div class="alert alert-primary" role="alert">';
+		$html .= $this->description();
+		$html .= '</div>';
 		
-		$html = '<div class="AutoArchiveMenuPlusMore-plugin">';
+		$html .= '<div class="AutoArchiveMenuPlusMore-plugin">';
 		/********************************************************
 			Global Options
 		********************************************************/
@@ -263,9 +268,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '</div>';
 			// Display X number of Archived items
 			$html .= '<div class="divTableCell">';
-				$html .= '<label class="labelStyle">'.$L->get('amount-of-items').'</label>';
+				$html .= '<label class="labelStyle">'.$L->get('number-of-items-label').'</label>';
 				$html .= '<input id="jsnumberOfItems" name="numberOfItems" type="number" value="'.$this->getValue('numberOfItems').'">';
-				$html .= '<span class="tip">'.$L->get('amount-of-items-tip').'</span>';
+				$html .= '<span class="tip">'.$L->get('number-of-items-tip').'</span>';
 			$html .= '</div>';
 		$html .= '</div></div></div>';
 
@@ -337,6 +342,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		Let's fill some variables...
 		*******************************************************************************/
 
+		$parentSortDesc = true;
+		$childrenSortDesc = true;
+
 		// Do we show Admin section and is user allowed to see it?
 		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
 		$adminCategory = $this->getValue('adminCategory');
@@ -392,8 +400,22 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$onlyPublished = true; 
 		$showSectionLabelIfEmpty = $this->getValue('alwaysShowUpcomingSectionLabel');
 		// Get the list of pages
-		$publishedPagesByDate = $pages->getList($pageNumber, -1, $onlyPublished); // -1 gets all pages
-		$parents = buildParentPages();
+		IF (ORDER_BY=='position') 
+		{	$parents = buildParentPages();}
+		ELSE
+		{	$publishedPagesByDate = $pages->getList($pageNumber, -1, $onlyPublished);} // -1 gets all pages
+		
+
+		// DESC OR ASC
+		IF ($parentSortDesc) {
+			// DESC
+			uasort($parents, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
+		}
+		ELSE {
+			// ASC
+			uasort($parents, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
+		}
+                    			
 		// Declare EXIST variables for each section to FALSE, upcoming, current & archive.
 		$adminPagesExist = false;
 		$upcomingPagesExist = false;
@@ -412,8 +434,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		DETERMINE IF PAGES EXIST FOR EACH SECTION - ORDERED EITHER BY POSITION OR PUBLISED DATE
 		****************************************************************************************/
 		IF (ORDER_BY=='position') 
-		{
-			// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
+		{	// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop
+					
 			FOREACH($parents as $parent) {
 				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
 					&& strtotime( $parent->date() ) > $currentEpoch) 
@@ -806,8 +828,6 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 					IF ( strtotime( $parent->date() ) <= $archiveEpoch 
 						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) {
 
-						IF ($countOfItems === $numberOfItems) { break; }
-
 						$html .= '<li class="parent">';
 						$html .= '	<h3>';
 						$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
@@ -833,8 +853,11 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 						}
 						//}
 						$html .= '</li>';
+
+						$countOfItems++;
+						IF ($countOfItems >= $numberOfItems) { break; }						
 					}
-					$countOfItems++;
+
 				}
 			}
 			else {	// Pages order by date
@@ -844,14 +867,12 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				FOREACH ($publishedPagesByDate as $pageKey) {
 
 					try {
-							$page = new Page($pageKey);
+						$page = new Page($pageKey);
 						
 						IF ( strtotime( $page->date() ) <= $archiveEpoch
 								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory) ) )
 								&& !($page->isChild() ) ) {								
 
-							IF ($countOfItems == $numberOfItems) { break; }
-							
 							$html .= '<li class="parent">';
 							$html .= '	<h3>';						
 							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
@@ -877,11 +898,13 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 								$html .= '</ul>';
 							}
 							$html .= '</li>';
+
+							$countOfItems++;
+							IF ($countOfItems >= $numberOfItems) { break; }	
 						}
-						$countOfItems++;
 					}
 					catch (Exception $e) {
-							// Continue
+
 					}
 				}
 			}
@@ -891,4 +914,5 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 		return $html;
 	}
+
 }
