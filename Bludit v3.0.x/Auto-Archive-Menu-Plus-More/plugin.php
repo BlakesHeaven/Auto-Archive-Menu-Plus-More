@@ -7,6 +7,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		// Fields and default values for the database of this plugin
 		$this->dbFields = array(
 			'durationType'=>'month',
+			'parentsSortDesc'=>false,
+			'childrenSortDesc'=>false,
 			'alwaysShowUpcomingSectionLabel'=>false,
 			'upcomingFillinText'=>'',
 
@@ -107,6 +109,27 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				$html .= '<span class="tip">'.$L->get('hidden-category-tip').'</span>';
 			$html .= '</div>';
 		$html .= '</div></div></div>';
+		
+		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
+			// Define the Parents Sort Order
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('parents-sort-label').'</label>';
+				$html .= '<select name="parentsSortDesc">';
+				$html .= '<option value="true" '.($this->getValue('parentsSortDesc')===true?'selected':'').'>'.$L->get('sort-descending').'</option>';
+				$html .= '<option value="false" '.($this->getValue('parentsSortDesc')===false?'selected':'').'>'.$L->get('sort-ascending').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('parents-sort-tip').'</span>';
+			$html .= '</div>';
+			// Define the Children Sort Order
+			$html .= '<div class="divTableCell">';
+				$html .= '<label class="labelStyle">'.$L->get('children-sort-label').'</label>';
+				$html .= '<select name="childrenSortDesc">';
+				$html .= '<option value="true" '.($this->getValue('childrenSortDesc')===true?'selected':'').'>'.$L->get('sort-descending').'</option>';
+				$html .= '<option value="false" '.($this->getValue('childrenSortDesc')===false?'selected':'').'>'.$L->get('sort-ascending').'</option>';
+				$html .= '</select>';
+				$html .= '<span class="tip">'.$L->get('children-sort-tip').'</span>';
+			$html .= '</div>';
+		$html .= '</div></div></div>';
 
 		$html .= '<hr>';
 		/********************************************************
@@ -153,7 +176,6 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '<input id="jsupcominglabel" name="upcomingLabel" type="text" value="'.$this->getValue('upcomingLabel').'">';
 			$html .= '<span class="tip">'.$L->get('upcoming-label-tip').'</span>';
 		$html .= '</div>';
-		
 
 		$html .= '<div class="divTable" style="width: 100%;" ><div class="divTableBody"><div class="divTableRow">';
 			// Enabled/Disabled
@@ -342,8 +364,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		Let's fill some variables...
 		*******************************************************************************/
 
-		$parentSortDesc = true;
-		$childrenSortDesc = true;
+		$parentsSortDesc	= $this->getValue('parentsSortDesc');
+		$childrenSortDesc	= $this->getValue('childrenSortDesc');
 
 		// Do we show Admin section and is user allowed to see it?
 		$displayAdminStuffSection = $this->getValue('displayAdminStuffSection');
@@ -367,7 +389,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 		// We always show current section so just get info...
 		$currentLabel = $this->getValue('currentLabel');
-		$durationType = $this->getValue('durationType');		// Day, Week, Month.
+		$durationType = $this->getValue('durationType');	// Day, Week or Month.
+
 		// How much time passes from the published date before being current - should be less than archive values below.
 		IF ($displayUpcomingSection) {$currentAfter = $this->getValue('currentAfter');}
 		ELSE {$currentAfter = 0;}
@@ -382,7 +405,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			// How much time passes from the published date before archiving - should be greater than current values above.
 			$archiveAfter = $this->getValue('archiveAfter');
 			$archiveEpoch = strtotime(date("Y-m-d H:i:s", time() ) . " -$archiveAfter $durationType");
-			// Number of Archive Parent pages to show and a counter/
+			// Number of Archive Parent pages to show and a counter
 			$numberOfItems = $this->getValue('numberOfItems');
 			$countOfItems = 0;
 			// Do we show Archive Children?
@@ -394,33 +417,40 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		$displayStaticPagesSection = $this->getValue('displayStaticPagesSection');
 		// Static Page Label
 		$staticLabel = $this->getValue('staticLabel');
-		// Page number the first one
-		$pageNumber = 1;
 		// Misc - Other variables
-		$onlyPublished = true; 
 		$showSectionLabelIfEmpty = $this->getValue('alwaysShowUpcomingSectionLabel');
-		// Get the list of pages
-		IF (ORDER_BY=='position') 
-		{	$parents = buildParentPages();}
-		ELSE
-		{	$publishedPagesByDate = $pages->getList($pageNumber, -1, $onlyPublished);} // -1 gets all pages
+		// Get the list of parent pages
+		$parents = buildParentPages();
 		
-
-		// DESC OR ASC
-		IF ($parentSortDesc) {
-			// DESC
-			uasort($parents, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
+		IF (ORDER_BY=='position') 
+		{	// DESC OR ASC
+			IF ($parentsSortDesc) {
+				uasort($parents, function($a, $b) { return $b->position() - $a->position(); });
+			}
+			ELSE {
+				uasort($parents, function($a, $b) { return $a->position() - $b->position(); });
+			}	
 		}
-		ELSE {
-			// ASC
-			uasort($parents, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
-		}
-                    			
+		ELSE
+		{	// DESC OR ASC
+			IF ($parentsSortDesc) {
+				uasort($parents, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
+			}
+			ELSE {
+				uasort($parents, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
+			}
+		} 
+		//return $html;                    			
 		// Declare EXIST variables for each section to FALSE, upcoming, current & archive.
 		$adminPagesExist = false;
 		$upcomingPagesExist = false;
 		$currentPagesExist = false;
 		$archivePagesExist = false;
+
+		/********************************************************************************************
+		DETERMINE IF PAGES EXIST FOR EACH SECTION AND BREAK EARLY - MAY HELP PERFORMANCE, BUT MAY NOT
+		*********************************************************************************************/
+
 		// For each page, check IF applicable for ADMIN STUFF section, set variable to TRUE and break out of loop
 		IF (($displayAdminStuffSection) && in_array($userRole, array("editor","admin") ) ) {
 			FOREACH($parents as $parent) {
@@ -430,80 +460,32 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				}
 			}			
 		}
-		/***************************************************************************************
-		DETERMINE IF PAGES EXIST FOR EACH SECTION - ORDERED EITHER BY POSITION OR PUBLISED DATE
-		****************************************************************************************/
-		IF (ORDER_BY=='position') 
-		{	// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop
-					
-			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
-					&& strtotime( $parent->date() ) > $currentEpoch) 
-				{
-					$upcomingPagesExist = true;
-					break;
-				}
-			}
-			// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
-			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
-					&& strtotime( $parent->date() ) > $archiveEpoch 
-						&& strtotime( $parent->date() ) <= $currentEpoch ) 
-				{
-					$currentPagesExist = true;
-					break;
-				}
-			}
-			// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
-			FOREACH($parents as $parent) {
-				IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
-					&& strtotime( $parent->date() ) <= $archiveEpoch ) 
-				{
-					$archivePagesExist = true;
-					break;
-				}
+		// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop
+		FOREACH($parents as $parent) {
+			IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
+				&& strtotime( $parent->date() ) > $currentEpoch) 
+			{
+				$upcomingPagesExist = true;
+				break;
 			}
 		}
-		else 
-		{	// For each page, check IF applicable for UPCOMING section, set variable to TRUE and break out of loop		
-			FOREACH($publishedPagesByDate as $pageKey) {
-				try {
-						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
-							&& strtotime( $page->date() ) > $currentEpoch) 
-						{
-							$upcomingPagesExist = true;
-							break;
-						}
-				}
-				catch (Exception $e) { }// continue...
+		// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
+		FOREACH($parents as $parent) {
+			IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
+				&& strtotime( $parent->date() ) > $archiveEpoch 
+					&& strtotime( $parent->date() ) <= $currentEpoch ) 
+			{
+				$currentPagesExist = true;
+				break;
 			}
-			// For each page, check IF applicable for CURRENT section, set variable to TRUE and break out of loop
-			FOREACH($publishedPagesByDate as $pageKey) {
-				try {
-						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
-							&&	strtotime( $page->date() ) > $archiveEpoch 
-								&& strtotime( $page->date() ) <= $currentEpoch ) 
-						{
-							$currentPagesExist = true;
-							break;
-						}
-				}
-				catch (Exception $e) { } // continue...
-			}
-			// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
-			FOREACH($publishedPagesByDate as $pageKey) {
-				try {
-						$page = new Page($pageKey);
-						IF (!in_array($page->category(), array($hiddenCategory,$adminCategory) ) 
-							&& strtotime( $page->date() ) <= $archiveEpoch ) 
-						{
-							$archivePagesExist = true;
-							break;
-						}
-				}
-				catch (Exception $e) { } // continue...
+		}
+		// For each page, check IF applicable for ARCHIVE section, set variable to TRUE and break out of loop
+		FOREACH($parents as $parent) {
+			IF (!in_array($parent->category(), array($hiddenCategory,$adminCategory) ) 
+				&& strtotime( $parent->date() ) <= $archiveEpoch ) 
+			{
+				$archivePagesExist = true;
+				break;
 			}
 		}
 
@@ -546,7 +528,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 
 		/*******************************************************************************
-		SECTION FOR PAGES PUBILSHED WITH CATEGORY FOR THE ADMIN BY POSITION ONLY
+		SECTION FOR PAGES WITH "ADMIN" CATEGORY. ORDERED BY POSITION ONLY
 		*******************************************************************************/
 		IF ( ($adminPagesExist) 
 				&& ($displayAdminStuffSection) 
@@ -565,18 +547,27 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 				$html .= $L->get('welcome').' '.$userDisplayName;
 			}
 
-			FOREACH ($parents as $parent) {
-
-				IF ( $parent->category() == $adminCategory ) {
-
+			FOREACH ($parents as $parent) 
+			{
+				IF ( $parent->category() == $adminCategory ) 
+				{
 					$html .= '<li class="parent">';
 					$html .= '	<h3>';
 					$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
 					$html .= '	</h3>';
 
-					IF ( $parent->hasChildren() && $showAdminStuffChildren ) {
-
+					IF ( $parent->hasChildren() && $showAdminStuffChildren ) 
+					{
 						$children = $parent->children();
+
+						// DESC OR ASC
+						IF ($parentsSortDesc) {
+							uasort($children, function($a, $b) { return $b->position() - $a->position(); });
+						}
+						ELSE {
+							uasort($children, function($a, $b) { return $a->position() - $b->position(); });
+						}	
+
 						$html .= '<ul class="child">';
 
 						FOREACH ($children as $child) {
@@ -588,10 +579,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 								$html .= '</li>';
 							}
 						}
-
 						$html .= '</ul>';
 					}
-
 					$html .= '</li>';
 				}
 			}
@@ -601,7 +590,7 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 		
 		/*******************************************************************************
-		SECTION FOR SHOWING UPCOMING TOPICS - PUBILSHED, BUT NOT YET CURRENT
+		SECTION FOR SHOWING UPCOMING TOPICS UNLESS ADMIN OR HIDDEN - NOT YET CURRENT
 		*******************************************************************************/
 		IF ( $displayUpcomingSection 
 				&& $upcomingPagesExist OR ($showSectionLabelIfEmpty 
@@ -610,10 +599,10 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		{
 			$html .= '<div class="plugin plugin-pages">';
 
-			IF (!empty($upcomingLabel)  ) {
-
+			IF (!empty($upcomingLabel)  ) 
+			{
 				$html .= '	<h2 class="plugin-label">' . $upcomingLabel . '</h2>';
-				
+
 				IF (!$upcomingPagesExist
 						&& $showSectionLabelIfEmpty
 						&& !empty($upcomingFillinText)
@@ -626,80 +615,55 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '	<div class="plugin-content">';
 			$html .= '		<ul>';
 
-			IF (ORDER_BY=='position') {
+			FOREACH($parents as $parent) 
+			{
+				IF ( strtotime( $parent->date() ) > $currentEpoch 
+						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) 
+				{
+					$html .= '<li class="parent">';
+					$html .= '	<h3>';
+					$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
+					$html .= '	</h3>';
 
-				FOREACH($parents as $parent) {
+					IF ( $parent->hasChildren() && $showUpcomingChildren ) {
 
-					IF ( strtotime( $parent->date() ) > $currentEpoch 
-							&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) {
+						$children = $parent->children();
 
-						$html .= '<li class="parent">';
-						$html .= '	<h3>';
-						$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
-						$html .= '	</h3>';
-
-						IF ( $parent->hasChildren() && $showUpcomingChildren ) {
-
-							$children = $parent->children();
-							$html .= '<ul class="child">';
-
-							FOREACH ($children as $child) {
-
-								IF ( strtotime( $child->date() ) > $currentEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
-
-									$html .= '<li class="child">';
-									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
-									$html .= '</li>';
-								}
+						IF (ORDER_BY=='position') 
+						{	
+							// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return $b->position() - $a->position(); });
 							}
-							$html .= '</ul>';
+							ELSE {
+								uasort($children, function($a, $b) { return $a->position() - $b->position(); });
+							}	
 						}
-						$html .= '</li>';
-					}
-				}
-			}
-			else {	// Page order by date
-
-				$pageNumber = 1;
-
-				FOREACH ($publishedPagesByDate as $pageKey) {
-
-					try {
-						$page = new Page($pageKey);
-						
-						IF ( strtotime( $page->date() ) > $currentEpoch
-								&& !in_array($page->category(), array($hiddenCategory,$adminCategory) )
-								&& !$page->isChild() ) 
-						{							
-							$html .= '<li class="parent">';
-							$html .= '	<h3>';						
-							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
-							$html .= '	</h3>';
-
-							$children = $page->children();
-
-							IF ( $page->hasChildren() && $showUpcomingChildren ) {
-
-								$children = $page->children();
-								$html .= '<ul class="child">';
-
-								FOREACH ($children as $child) {
-
-									IF ( strtotime( $child->date() ) > $currentEpoch 
-										&& !in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) {
-
-										$html .= '<li class="child">';
-										$html .= '	<a class="child" href="'.$child->permalink().'">' . $child->title() . '</a>';
-										$html .= '</li>';
-									}
-								}
-								$html .= '</ul>';
+						ELSE
+						{	// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
 							}
-							$html .= '</li>';
+							ELSE {
+								uasort($children, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
+							}
+						} 
+
+						$html .= '<ul class="child">';
+
+						FOREACH ($children as $child) {
+
+							IF ( strtotime( $child->date() ) > $currentEpoch 
+									&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
+
+								$html .= '<li class="child">';
+								$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
+								$html .= '</li>';
+							}
 						}
+						$html .= '</ul>';
 					}
-					catch (Exception $e) { } // continue...
+					$html .= '</li>';
 				}
 			}
 			$html .= '		</ul>';
@@ -707,9 +671,8 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '</div>';
 		}
 
-
 		/*******************************************************************************
-		SECTION FOR SHOWING CURRENT TOPICS - PUBILSHED, BUT NOT YET ARCHIEVED
+		SECTION FOR SHOWING CURRENT TOPICS UNLESS ADMIN OR HIDDEN - NOT YET ARCHIEVED
 		*******************************************************************************/
 		IF ( $currentPagesExist ) 
 		{
@@ -722,84 +685,57 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '	<div class="plugin-content">';
 			$html .= '		<ul>';
 
-			IF (ORDER_BY=='position') {
+			FOREACH($parents as $parent)
+			{
+				IF ( strtotime( $parent->date() ) <= $currentEpoch 
+					&& strtotime( $parent->date() ) > $archiveEpoch 
+					&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) 
+				{
+					$html .= '<li class="parent">';
+					$html .= '	<h3>';
+					$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
+					$html .= '	</h3>';
 
-				FOREACH($parents as $parent) {
-
-					IF ( strtotime( $parent->date() ) <= $currentEpoch 
-						&& strtotime( $parent->date() ) > $archiveEpoch 
-						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) 
+					IF ( $parent->hasChildren() && $showCurrentChildren ) 
 					{
-						$html .= '<li class="parent">';
-						$html .= '	<h3>';
-						$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
-						$html .= '	</h3>';
+						$children = $parent->children();
 
-						IF ( $parent->hasChildren() && $showCurrentChildren ) {
-
-							$children = $parent->children();
-							$html .= '<ul class="child">';
-
-							FOREACH ($children as $child) {
-
-								IF ( strtotime( $child->date() ) <= $currentEpoch 
-									&& strtotime( $child->date() ) > $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
-
-									$html .= '<li class="child">';
-									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
-									$html .= '</li>';
-								}
+						IF (ORDER_BY=='position') 
+						{	
+							// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return $b->position() - $a->position(); });
 							}
-							$html .= '</ul>';
+							ELSE {
+								uasort($children, function($a, $b) { return $a->position() - $b->position(); });
+							}	
 						}
-						$html .= '</li>';
-					}
-				}
-			}
-			else {	// Pages order by date
-
-				$pageNumber = 1;
-
-				FOREACH ($publishedPagesByDate as $pageKey) {
-
-					try {
-						$page = new Page($pageKey);
-						
-						IF ( strtotime( $page->date() ) <= $currentEpoch
-							&& strtotime( $page->date() ) > $archiveEpoch 
-							&& !(in_array($page->category(), array($hiddenCategory,$adminCategory) ) )
-							&& !($page->isChild() ) ) {								
-						
-							$html .= '<li class="parent">';
-							$html .= '	<h3>';						
-							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
-							$html .= '	</h3>';
-
-							$children = $page->children();
-
-							IF ( $page->hasChildren() && $showCurrentChildren ) {
-
-								$children = $page->children();
-								$html .= '<ul class="child">';
-
-								FOREACH ($children as $child) {
-
-									IF ( strtotime( $child->date() ) <= $currentEpoch 
-										&& strtotime( $child->date() ) > $archiveEpoch 
-											&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) ) {
-
-										$html .= '<li class="child">';
-										$html .= '	<a class="child" href="'.$child->permalink().'">' . $child->title() . '</a>';
-										$html .= '</li>';
-									}
-								}
-								$html .= '</ul>';
+						ELSE
+						{	// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
 							}
-							$html .= '</li>';
+							ELSE {
+								uasort($children, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
+							}
+						} 
+
+						$html .= '<ul class="child">';
+
+						FOREACH ($children as $child) {
+
+							IF ( strtotime( $child->date() ) <= $currentEpoch 
+								&& strtotime( $child->date() ) > $archiveEpoch 
+									&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
+
+								$html .= '<li class="child">';
+								$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
+								$html .= '</li>';
+							}
 						}
+						$html .= '</ul>';
 					}
-					catch (Exception $e) { }	// Continue
+					$html .= '</li>';
 				}
 			}
 			$html .= '		</ul>';
@@ -807,9 +743,9 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '</div>';
 		}
 
-		/*******************************************************************************
-		SECTION FOR SHOWING ARCHIEVED TOPICS - PUBILSHED AND OLD ENOUGH TO BE ARCHIEVED.
-		*******************************************************************************/
+		/*****************************************************************************************
+		SECTION FOR SHOWING ARCHIEVED TOPICS UNLESS ADMIN OR HIDDEN - OLD ENOUGH TO BE ARCHIEVED.
+		******************************************************************************************/
 		IF ( $archivePagesExist && $displayArchiveSection ) 
 		{
 			$html .= '<div class="plugin plugin-pages">';
@@ -821,91 +757,58 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 			$html .= '	<div class="plugin-content">';
 			$html .= '		<ul>';
 
-			IF (ORDER_BY=='position') {
+			FOREACH($parents as $parent) 
+			{
+				IF ( strtotime( $parent->date() ) <= $archiveEpoch 
+					&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) )
+				{
+					$html .= '<li class="parent">';
+					$html .= '	<h3>';
+					$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
+					$html .= '	</h3>';
 
-				FOREACH($parents as $parent) {
+					IF ( $parent->hasChildren() && $showArchiveChildren ) 
+					{
+						$children = $parent->children();
 
-					IF ( strtotime( $parent->date() ) <= $archiveEpoch 
-						&& !in_array($parent->category(), array($hiddenCategory,$adminCategory) ) ) {
-
-						$html .= '<li class="parent">';
-						$html .= '	<h3>';
-						$html .= '		<a class="parent" href="' . $parent->permalink() . '">' . $parent->title() . '</a>';
-						$html .= '	</h3>';
-
-						IF ( $parent->hasChildren() && $showArchiveChildren ) {
-
-							$children = $parent->children();
-							$html .= '<ul class="child">';
-
-							FOREACH ($children as $child) {
-
-								IF ( strtotime( $child->date() ) <= $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  {
-
-									$html .= '<li class="child">';
-									$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
-									$html .= '</li>';
-								}
+						IF (ORDER_BY=='position') 
+						{	
+							// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return $b->position() - $a->position(); });
 							}
-
-							$html .= '</ul>';
+							ELSE {
+								uasort($children, function($a, $b) { return $a->position() - $b->position(); });
+							}	
 						}
-						//}
-						$html .= '</li>';
-
-						$countOfItems++;
-						IF ($countOfItems >= $numberOfItems) { break; }						
-					}
-
-				}
-			}
-			else {	// Pages order by date
-
-				$pageNumber = 1;
-
-				FOREACH ($publishedPagesByDate as $pageKey) {
-
-					try {
-						$page = new Page($pageKey);
-						
-						IF ( strtotime( $page->date() ) <= $archiveEpoch
-								&& !(in_array($page->category(), array($hiddenCategory,$adminCategory) ) )
-								&& !($page->isChild() ) ) {								
-
-							$html .= '<li class="parent">';
-							$html .= '	<h3>';						
-							$html .= '		<a class="parent" href="' . $page->permalink() . '">' . $page->title() . '</a>';
-							$html .= '	</h3>';
-
-							$children = $page->children();
-
-							IF ( $page->hasChildren() && $showArchiveChildren ) {
-
-								$children = $page->children();
-								$html .= '<ul class="child">';
-
-								FOREACH ($children as $child) {
-
-									IF ( strtotime( $child->date() ) <= $archiveEpoch 
-										&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) ) {
-
-										$html .= '<li class="child">';
-										$html .= '	<a class="child" href="'.$child->permalink() . '">' . $child->title() . '</a>';
-										$html .= '</li>';
-									}
-								}
-								$html .= '</ul>';
+						ELSE
+						{	// DESC OR ASC
+							IF ($childrenSortDesc) {
+								uasort($children, function($a, $b) { return strtotime($b->dateRaw()) - strtotime($a->dateRaw()); });
 							}
-							$html .= '</li>';
+							ELSE {
+								uasort($children, function($a, $b) { return strtotime($a->dateRaw()) - strtotime($b->dateRaw()); });
+							}
+						} 
 
-							$countOfItems++;
-							IF ($countOfItems >= $numberOfItems) { break; }	
+						$html .= '<ul class="child">';
+
+						FOREACH ($children as $child) 
+						{
+							IF ( strtotime( $child->date() ) <= $archiveEpoch 
+									&& !(in_array($child->category(), array($hiddenCategory,$adminCategory) ) ) )  
+							{
+								$html .= '<li class="child">';
+								$html .= '	<a class="child" href="' . $child->permalink() . '">' . $child->title() . '</a>';
+								$html .= '</li>';
+							}
 						}
+						$html .= '</ul>';
 					}
-					catch (Exception $e) {
+					$html .= '</li>';
 
-					}
+					$countOfItems++;
+					IF ($countOfItems >= $numberOfItems) { break; }						
 				}
 			}
 			$html .= '		</ul>';
@@ -914,5 +817,4 @@ class pluginAutoArchiveMenuPlusMore extends Plugin {
 		}
 		return $html;
 	}
-
 }
