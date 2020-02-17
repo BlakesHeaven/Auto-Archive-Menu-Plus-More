@@ -26,13 +26,14 @@ All sections are configurable:
     <li>What to do about nothing? Automatically shows or hides the upcoming section label if no content is found</br>
         and Fill-in text iis provided if nothing is found.</li>
     <li>If "Upcoming" menu section is disabled, pages immediately fall into "Current" menu section.</li>
+    <li>NEW in v3.11.0 - Configure the Sort Order, Asc/Desc for both Parent and Child content.</li>
 </ul>
 
 Oh yes; there are a few more features as well...
 <ul>
     <li>Hide pages with a named Category.</li>
     <li>A built in "Static Menu" - derived from the standard Bludit "Static Menu" plug-in, but honoring the hidden pages category.</li>
-    <li>Enable/Disable Home page withing Static Pages</li>
+    <li>Enable/Disable Home page within Static Pages</li>
     <li>Special menu Section for Admin/Editors when logged in</li>
 </ul>
 
