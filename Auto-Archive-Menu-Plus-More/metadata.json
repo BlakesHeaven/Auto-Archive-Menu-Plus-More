@@ -1,12 +1,10 @@
 {
 	"author": "David Blake",
 	"email": "",
-	"website": "https://github.com/BlakesHeaven/Auto-Archive-Menu-Plus-More",
-	"version": "3.11.0",
-	"releaseDate": "16/02/2020",
-	"license": "MIT",
-	"compatible": "3.x",
-	"notes":	"Developed against Bludit v3.7 and tested against 3.10.x. and 3.11.x
-				 v3.9.0 added properly restricted 'Admin Stuff' section back in to side menu control.
-				 v3.10.0 added seperate configurable sorting of parent and child menu items."
+	"website":"https://github.com/BlakesHeaven/Auto-Archive-Menu-Plus-More",
+	"version":"3.11.0",
+	"releaseDate":"16/02/2020",
+	"license":"MIT",
+	"compatible":"3.x",
+	"notes":"Developed against Bludit v3.7 and tested against 3.10.x. and 3.11.x. See version notes in zip root."
 }
