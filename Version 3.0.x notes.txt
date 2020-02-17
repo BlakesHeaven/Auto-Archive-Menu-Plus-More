@@ -1,0 +1,83 @@
+This version was developed against Bludit v3.10.0 & tested against v3.11.0
+
+For earlier versions of Bludit, see the relevent folders.
+
+Known issues:
+	Yay - none at the moment
+	
+Unknown issues:
+	Mmm, I don't know yet and probably never will.
+	Once they are known they be in the known issues section above.
+
+
+CHANGE HISTORY TO PLUGIN:
+
+Changes for plugin version 3.11.0 - Configurable Sort Order - 17/02/2020
+	Developed against Bludit v3.10.0 & tested against v3.11.0
+	New - Both Parents and Children can be sorted either Ascending or Descending as directed by the Advanced General Setting, "Order content by" {Position/Date}. 
+	Sort Order Configurable in Plugin Settings.
+	Fixes an issue that needed the sorting of the menu reversing for the parents - especially in the Archive section to make sure the older items disappeared first.
+	The array $publishedPagesByDate has been dropped because it does not have a 'rawDate' entity to be used by the sorting. 
+	Now, "$parents = buildParentPages() " is used for both order by Date as well as order by Position. This reduced the code by quite a bit.
+	Removed deprecated variables and code refactoring.
+
+	Note: I used to keep different versions in seperate folders. I have now dropped older version folders from the repository since they are available from the releases.
+	Now only the current version is activly held in code.
+
+Changes for plugin version 3.9.0 - "Admin Stuff" section - 29/05/2019
+    Fixes #4 ("Admin Stuff" section can't be restricted to logged in admin/editor) - Admin section functionality added back in!!
+
+    Code tidied up so that if the user is not admin/editor role, then don't bother setting variables otherwise needed.
+
+    Fixes #2 - Finished "Show fill-in text if nothing is found within the upcoming section" - new functionality.
+
+    Dropdown menu added to 'Hidden' & 'Admin Stuff' category selection for ease of use - new functionality.
+
+    Admin - Plugin configuration fields rearranged & formatted to fit better using two columns.
+
+
+Changes for plugin version 3.0.0 (aka fixed for Bludit 3.0	- 06/10/2018
+	amountOfItems	now	numberOfItems
+	$Language	now	$L		- personally I'd prefer $Language, but keeping it in-sync.
+	$Url		now	$url
+	$Site		now	$site
+	$dbPages	now	$pages
+	$Login		now	$login
+	$pagesByParent	now	$parents
+	$pagesByChildren now	$children
+
+	foreach ($staticPages as $pageKey) {	now	foreach ($staticPages as $page) {
+
+	Added checks for empty Lables - if (!empty($staticLabel)) {
+	added $staticPages = buildStaticPages();
+
+	Fixed the "Order content by" date to actually order by date, was previously only by position.
+
+	Removed "Admin Stuff" restriction to only show to Admin/Editors	because Bludit 3 can't identify loggedin user role.
+
+
+Changes for plugin version 2.3.2 (aka Added Admin Section)	- 06/06/2018
+	Added a new menu section so that if an Admin or Editor is logged in an extra 
+	menu shows. Designed for Admin documentation to be added and hided from the public.
+	NB: It's only a menu, pages are still accessible if the URL is know.
+	Aimed at normal Published pages so that Parent/Child relationship can be adopted.
+	Driven from a category of your choice. 
+
+
+Changes for plugin version 2.3.1 (aka Fixed for Buldit 2.3)	- 06/05/2018
+	Fixes to make compatible with Bludit Version 2.3.4
+
+	The following changes were make in several places to plugin.php:
+		Set all instances of "$Parent" to "$parent"; ie lower case "p".
+
+	Also,
+		$pagesByParent = buildParentPages();
+		//foreach($pagesByParent[PARENT] as $Parent) {
+		foreach($pagesByParent as $parent) {
+
+		//if(!empty($pagesByParent[$Parent->key()])) {
+		if ($parent->hasChildren()) {
+		$pagesByChildren = $parent->children();
+
+		//foreach($pagesByParent[$Parent->key()] as $child) {
+		foreach ($pagesByChildren as $child) {
